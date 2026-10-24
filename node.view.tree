@@ -83,6 +83,10 @@ $mol_link $mol_view
 		^
 		click? <=> click? <=> event_click? null
 
+$mol_icon_cellphone $mol_icon path \M17,19H7V5H17M17,1H7C5.89,1 5,1.89 5,3V21A2,2 0 0,0 7,23H17A2,2 0 0,0 19,21V3C19,1.89 18.1,1 17,1Z
+
+$mol_icon_cellphone_link $mol_icon path \M22,17H18V10H22M23,8H17A1,1 0 0,0 16,9V19A1,1 0 0,0 17,20H23A1,1 0 0,0 24,19V9A1,1 0 0,0 23,8M4,6H22V4H4A2,2 0 0,0 2,6V17H0V20H14V17H4V6Z
+
 $mol_icon_logout $mol_icon path \M17 7L15.59 8.41L18.17 11H8V13H18.17L15.59 15.58L17 17L22 12M4 5H12V3H4C2.9 3 2 3.9 2 5V19C2 20.1 2.9 21 4 21H12V19H4V5Z
 
 $mol_speck $mol_view
@@ -351,6 +355,55 @@ $bog_gipergram_login $mol_page
 				<= Error $mol_paragraph
 					title <= error \
 
+$mol_icon_clipboard $mol_icon path \M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3
+
+$mol_icon_clipboard_outline $mol_icon path \M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3M7,7H17V5H19V19H5V5H7V7Z
+
+$mol_button_copy $mol_button_minor
+	blobs /$mol_blob
+		<= text_blob? $mol_blob /
+			/BlobPart <= text <= title
+			* type \text/plain
+		<= html_blob? $mol_blob /
+			/BlobPart <= html \
+			* type \text/html
+	data *
+	sub /
+		<= Icon $mol_icon_clipboard_outline
+		<= title \
+
+$bog_gipergram_devices $mol_page
+	title @ \Устройства
+	tools /
+		<= Close $mol_link
+			arg *
+				devices null
+			sub /
+				<= Close_icon $mol_icon_close
+	body /
+		<= Content $mol_list
+			rows /
+				<= Hint $mol_paragraph
+					title @ \Вкладки, отметки непрочитанного и мои сообщения синкаются через Giper Baza. Чтобы они были общими, на другом устройстве отсканируй код или открой ссылку. Ссылка секретная, это ключ аккаунта.
+				<= Qr $bog_qr
+					uri <= link \
+				<= Copy $mol_button_copy
+					text <= link
+					title @ \Скопировать ссылку
+				<= Import $mol_view
+					sub /
+						<= Input $mol_string
+							hint @ \Ссылка с другого устройства
+							value? <=> input? \
+						<= Apply $mol_button_minor
+							title @ \Применить
+							click? <=> apply? null
+				<= Status $mol_paragraph
+					title <= status? \
+	imported false
+	status_wrong @ \Это не ссылка аккаунта
+	status_same @ \Этот аккаунт уже здесь
+
 $mol_icon_arrow_up $mol_icon path \M13,20H11V8L5.5,13.5L4.08,12.08L12,4.16L19.92,12.08L18.5,13.5L13,8V20Z
 
 $mol_icon_view_split_vertical $mol_icon path \M13,5H21V19H13V5M3,5H11V7H3V5M3,11V9H11V11H3M3,19V17H11V19H3M3,15V13H11V15H3Z
@@ -437,23 +490,6 @@ $mol_text_code_line $mol_paragraph
 		needle <= highlight \
 		uri <= token_uri* \
 	find_pos* null
-
-$mol_icon_clipboard $mol_icon path \M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3
-
-$mol_icon_clipboard_outline $mol_icon path \M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3M7,7H17V5H19V19H5V5H7V7Z
-
-$mol_button_copy $mol_button_minor
-	blobs /$mol_blob
-		<= text_blob? $mol_blob /
-			/BlobPart <= text <= title
-			* type \text/plain
-		<= html_blob? $mol_blob /
-			/BlobPart <= html \
-			* type \text/html
-	data *
-	sub /
-		<= Icon $mol_icon_clipboard_outline
-		<= title \
 
 $mol_text_code $mol_stack
 	attr *
@@ -626,6 +662,7 @@ $bog_gipergram_app $mol_book2
 	store $bog_gipergram_store
 	Login $bog_gipergram_login
 		tg <= tg
+	Devices $bog_gipergram_devices
 	Menu $mol_page
 		title \Gipergram
 		tools /
@@ -635,6 +672,12 @@ $bog_gipergram_app $mol_book2
 					mine \
 				sub /
 					<= Mine_icon $mol_icon_comment_account
+			<= Devices_link $mol_link
+				hint @ \Устройства и синхронизация
+				arg *
+					devices \
+				sub /
+					<= Devices_icon $mol_icon_cellphone_link
 			<= Logout $mol_button_minor
 				hint @ \Выйти
 				click? <=> logout? null
