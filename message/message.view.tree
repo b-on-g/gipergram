@@ -1,0 +1,16 @@
+$bog_gipergram_message $mol_view
+	attr *
+		^
+		bog_gipergram_message_out <= out false
+	sub /
+		<= Bubble $mol_view
+			sub <= bubble_content /
+				<= Author $mol_view
+					sub /
+						<= author \
+				<= Text $mol_view
+					sub /
+						<= text \
+				<= Time $mol_view
+					sub /
+						<= time \

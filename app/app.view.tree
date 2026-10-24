@@ -1,0 +1,71 @@
+$bog_gipergram_app $mol_book2
+	plugins /
+		<= Theme $bog_theme_auto
+	tg $bog_gipergram_tg
+		message_out? <=> message_out? null
+	store $bog_gipergram_store
+	Login $bog_gipergram_login
+		tg <= tg
+	Menu $mol_page
+		title \Gipergram
+		tools /
+			<= Mine_link $mol_link
+				hint @ \Мои сообщения
+				arg *
+					mine \
+				sub /
+					<= Mine_icon $mol_icon_comment_account
+			<= Logout $mol_button_minor
+				hint @ \Выйти
+				click? <=> logout? null
+				sub /
+					<= Logout_icon $mol_icon_logout
+		body /
+			<= Tabs_title $mol_view
+				sub /
+					<= tabs_title @ \Вкладки
+			<= Tabs $mol_list
+				rows <= tab_rows /
+					<= Tab* $bog_gipergram_row
+						peer <= row_peer* \
+						title <= row_title* \
+						preview <= row_preview* \
+						time <= row_time* \
+						unread <= tab_unread* 0
+						arg <= row_arg* *
+						click? <=> chat_open*? null
+			<= Chats_title $mol_view
+				sub /
+					<= chats_title @ \Все чаты
+			<= Chats $mol_list
+				rows <= chat_rows /
+					<= Chat_row* $bog_gipergram_row
+						peer <= row_peer* \
+						title <= row_title* \
+						preview <= row_preview* \
+						time <= row_time* \
+						unread <= chat_unread* 0
+						arg <= row_arg* *
+						click? <=> chat_open*? null
+	Chat* $bog_gipergram_chat
+		peer <= chat_peer* \
+		tg <= tg
+		store <= store
+	Mine $mol_page
+		title @ \Мои сообщения
+		tools /
+			<= Mine_close $mol_link
+				arg *
+					mine null
+				sub /
+					<= Mine_close_icon $mol_icon_close
+		body /
+			<= Mine_list $mol_list
+				rows <= mine_rows /
+					<= Mine_row* $bog_gipergram_row
+						peer <= mine_peer* \
+						title <= mine_title* \
+						preview <= mine_text* \
+						time <= mine_time* \
+						arg <= mine_arg* *
+						click? <=> chat_open*? null

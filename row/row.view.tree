@@ -1,0 +1,24 @@
+$bog_gipergram_row $mol_link
+	peer \
+	sub /
+		<= Avatar $mol_avatar
+			id <= peer
+		<= Info $mol_view
+			sub /
+				<= Head $mol_view
+					sub /
+						<= Title $mol_view
+							sub /
+								<= title \
+						<= Time $mol_view
+							sub /
+								<= time \
+				<= Foot $mol_view
+					sub <= foot /
+						<= Preview $mol_view
+							sub /
+								<= preview \
+						<= Unread $mol_view
+							sub /
+								<= unread_text \
+	unread 0

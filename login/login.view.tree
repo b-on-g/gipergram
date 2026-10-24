@@ -1,0 +1,28 @@
+$bog_gipergram_login $mol_page
+	tg $bog_gipergram_tg
+	title @ \Вход
+	body /
+		<= Form $mol_list
+			rows <= form_rows /
+				<= Unconfigured $mol_paragraph
+					title @ \Впиши api_id и api_hash с my.telegram.org в bog/gipergram/tg/tg.ts
+				<= Phone $mol_string
+					hint @ \Телефон, +79991234567
+					type \tel
+					value? <=> phone? \
+				<= Code_send $mol_button_major
+					title @ \Получить код
+					click? <=> code_send? null
+				<= Code $mol_string
+					hint @ \Код из Telegram
+					value? <=> code? \
+				<= Code_check $mol_button_major
+					title @ \Войти
+					click? <=> code_check? null
+				<= Password $mol_string
+					hint @ \Облачный пароль
+					type \password
+					value? <=> password? \
+				<= Password_check $mol_button_major
+					title @ \Войти
+					click? <=> password_check? null

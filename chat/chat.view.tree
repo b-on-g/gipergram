@@ -1,0 +1,60 @@
+$bog_gipergram_chat $mol_page
+	peer \
+	tg $bog_gipergram_tg
+	store $bog_gipergram_store
+	title <= chat_title \
+	tools /
+		<= Bump $mol_button_minor
+			hint @ \Поднять вкладку наверх
+			click? <=> bump? null
+			sub /
+				<= Bump_icon $mol_icon_arrow_up
+		<= Split $mol_check_icon
+			hint @ \Держать открытым рядом
+			checked? <=> split? false
+			Icon <= Split_icon $mol_icon_view_split_vertical
+		<= Close $mol_button_minor
+			hint @ \Закрыть вкладку
+			click? <=> close? null
+			sub /
+				<= Close_icon $mol_icon_close
+	body /
+		<= Messages $mol_list
+			rows <= message_rows /
+				<= Unread $mol_view
+					sub /
+						<= unread_title @ \Новые с прошлого раза
+				<= Message* $bog_gipergram_message
+					text <= message_text* \
+					author <= message_author* \
+					time <= message_time* \
+					out <= message_out* false
+	unread_count 0
+	unread_count_label @ \непрочитано
+	foot /
+		<= Anchor_bar $mol_view
+			sub <= anchor_bar /
+				<= Unread_count $mol_view
+					sub /
+						<= unread_count_text \
+				<= Read $mol_button_minor
+					hint @ \Отметить всё прочитанным
+					click? <=> read? null
+					sub /
+						<= Read_icon $mol_icon_check_all
+				<= Restore $mol_button_minor
+					hint @ \Вернуть прошлую отметку
+					click? <=> restore? null
+					sub /
+						<= Restore_icon $mol_icon_undo
+		<= Compose $mol_view
+			sub /
+				<= Draft $mol_textarea
+					hint @ \Сообщение, Ctrl+Enter
+					value? <=> draft? \
+					submit? <=> send? null
+				<= Send $mol_button_major
+					hint @ \Отправить
+					click? <=> send? null
+					sub /
+						<= Send_icon $mol_icon_send
