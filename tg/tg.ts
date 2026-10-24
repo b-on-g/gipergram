@@ -115,8 +115,64 @@ namespace $ {
 			this.authorized( true )
 		}
 
+		@ $mol_mem
+		qr_uri( next?: string ) {
+			return next ?? ''
+		}
+
+		@ $mol_mem
+		qr_error( next?: string ) {
+			return next ?? ''
+		}
+
+		password_wait = null as null | ( ( password: string )=> void )
+
+		password_ask() {
+			this.password_needed( true )
+			return new Promise< string >( done => this.password_wait = done )
+		}
+
+		token_uri( token: Uint8Array< ArrayBuffer > ) {
+			const base64 = $mol_base64_encode( new Uint8Array( token ) )
+			return 'tg://login?token=' + base64.replace( /\+/g, '-' ).replace( /\//g, '_' ).replace( /=/g, '' )
+		}
+
+		async qr_run( client: any ) {
+			try {
+				await client.signInUserWithQrCode( this.credentials(), {
+					qrCode: async( { token }: { token: Uint8Array< ArrayBuffer > } )=> { this.qr_uri( this.token_uri( token ) ) },
+					password: ()=> this.password_ask(),
+					onError: async( error: Error )=> {
+						this.qr_error( error.message )
+						return false
+					},
+				} )
+				this.session( client.session.save() )
+				this.authorized( true )
+			} catch( error: any ) {
+				this.qr_error( error?.message ?? String( error ) )
+			}
+		}
+
+		qr_running = false
+
+		@ $mol_mem
+		qr_started() {
+			const client = this.client()
+			if( this.qr_running ) return true
+			this.qr_running = true
+			this.qr_run( client ).finally( ()=> this.qr_running = false )
+			return true
+		}
+
 		@ $mol_action
 		password_check( password: string ) {
+			if( this.password_wait ) {
+				this.qr_error( '' )
+				this.password_wait( password )
+				this.password_wait = null
+				return
+			}
 			$mol_wire_sync( this.client() ).signInWithPassword( this.credentials(), {
 				password: async()=> password,
 				onError: async( error: Error )=> { throw error },
