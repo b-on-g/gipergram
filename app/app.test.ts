@@ -52,6 +52,7 @@ namespace $ {
 		const tg = $bog_gipergram_tg_fake.make({ $ })
 		app.tg = ()=> tg
 		tg.message_out = next => app.message_out( next )
+		new $mol_wire_atom( 'bog_gipergram_test_keep_store', ()=> app.store().data() ).fresh()
 		return { app, tg }
 	}
 
@@ -71,6 +72,17 @@ namespace $ {
 			$mol_assert_equal( app.tab_rows()[ 0 ], app.Tab( '1' ) )
 			$mol_assert_equal( app.chat_rows().length, 1 )
 			$mol_assert_equal( app.chat_rows()[ 0 ], app.Chat_row( '2' ) )
+			$mol_assert_equal( app.store().data().Tabs()!.items()[ 0 ], '1' )
+		},
+
+		'device link carries the baza key and is parsed back'( $ ) {
+			const { app } = app_make( $ )
+			const devices = app.Devices() as $$.$bog_gipergram_devices
+			const key = devices.key()
+			$mol_assert_equal( devices.link().endsWith( '#!account=' + key ), true )
+			$mol_assert_equal( devices.key_of( devices.link() ), key )
+			$mol_assert_equal( devices.key_of( 'https://b-on-g.github.io/gipergram/' ), '' )
+			$mol_assert_equal( devices.switch( key ), false )
 		},
 
 		'bump lifts a tab to the top'( $ ) {

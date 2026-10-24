@@ -1,21 +1,25 @@
 namespace $ {
 
-	export type $bog_gipergram_store_mine = {
-		peer: string
-		id: number
-		text: string
-		date: number
-	}
+	export class $bog_gipergram_store_data extends $giper_baza_dict.with({
+		Tabs: $giper_baza_list_str,
+		Split: $giper_baza_list_str,
+		Anchor: $giper_baza_dict_to( $giper_baza_atom_real ),
+		Anchor_prev: $giper_baza_dict_to( $giper_baza_atom_real ),
+		Mine: $giper_baza_list_str,
+	}) {}
 
 	export class $bog_gipergram_store extends $mol_object {
 
-		local< Value >( key: string, next?: Value ) {
-			return this.$.$mol_state_local.value< Value >( 'bog_gipergram_' + key, next )
+		data() {
+			return this.$.$giper_baza_glob.home().land().Data( $bog_gipergram_store_data )
 		}
 
-		@ $mol_mem
-		tabs( next?: string[] ): string[] {
-			return this.local( 'tabs', next ) ?? []
+		auto_of( next: unknown ) {
+			return next === undefined ? undefined : 'auto'
+		}
+
+		tabs( next?: string[] ): readonly string[] {
+			return this.data().Tabs( this.auto_of( next ) )?.items( next ) ?? []
 		}
 
 		tab_open( peer: string ) {
@@ -32,9 +36,8 @@ namespace $ {
 			this.split( this.split().filter( id => id !== peer ) )
 		}
 
-		@ $mol_mem
-		split( next?: string[] ): string[] {
-			return this.local( 'split', next ) ?? []
+		split( next?: string[] ): readonly string[] {
+			return this.data().Split( this.auto_of( next ) )?.items( next ) ?? []
 		}
 
 		split_toggle( peer: string ) {
@@ -45,14 +48,14 @@ namespace $ {
 			)
 		}
 
-		@ $mol_mem_key
 		anchor( peer: string, next?: number | null ): number | null {
-			return this.local( 'anchor_' + peer, next ) ?? null
+			const auto = this.auto_of( next )
+			return this.data().Anchor( auto )?.key( peer, auto )?.val( next ) ?? null
 		}
 
-		@ $mol_mem_key
 		anchor_prev( peer: string, next?: number | null ): number | null {
-			return this.local( 'anchor_prev_' + peer, next ) ?? null
+			const auto = this.auto_of( next )
+			return this.data().Anchor_prev( auto )?.key( peer, auto )?.val( next ) ?? null
 		}
 
 		anchor_move( peer: string, from: number, id: number ) {
@@ -72,15 +75,15 @@ namespace $ {
 			return 500
 		}
 
-		@ $mol_mem
-		mine( next?: $bog_gipergram_store_mine[] ): $bog_gipergram_store_mine[] {
-			return this.local( 'mine', next ) ?? []
+		mine( next?: string[] ): readonly string[] {
+			return this.data().Mine( this.auto_of( next ) )?.items( next ) ?? []
 		}
 
-		mine_add( item: $bog_gipergram_store_mine ) {
+		mine_add( peer: string, id: number ) {
+			const key = `${ peer }:${ id }`
 			const mine = this.mine()
-			if( mine.some( one => one.peer === item.peer && one.id === item.id ) ) return
-			this.mine( [ item, ... mine ].slice( 0, this.mine_limit() ) )
+			if( mine.includes( key ) ) return
+			this.mine( [ key, ... mine ].slice( 0, this.mine_limit() ) )
 		}
 
 	}

@@ -255,6 +255,14 @@ namespace $ {
 			return list.map( message => this.message_of( message ) ).reverse()
 		}
 
+		@ $mol_mem_key
+		message_one( [ peer, id ]: [ string, number ] ): $bog_gipergram_tg_message | null {
+			const cached = $mol_wire_probe( ()=> this.messages( peer ) )?.find( message => message.id === id )
+			if( cached ) return cached
+			const [ found ] = $mol_wire_sync( this.client() ).getMessages( this.entity( peer ), { ids: [ id ] } ) as any[]
+			return found ? this.message_of( found ) : null
+		}
+
 		@ $mol_action
 		send( peer: string, text: string ) {
 			const sent = $mol_wire_sync( this.client() ).sendMessage( this.entity( peer ), { message: text } )

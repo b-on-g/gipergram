@@ -10,6 +10,10 @@ namespace $.$$ {
 			return this.$.$mol_state_arg.value( 'mine' ) !== null
 		}
 
+		devices_opened() {
+			return this.$.$mol_state_arg.value( 'devices' ) !== null
+		}
+
 		pages() {
 			if( !this.tg().authorized() ) return [ this.Login() ]
 			const current = this.chat_current()
@@ -18,7 +22,13 @@ namespace $.$$ {
 				... this.store().split().filter( id => id !== current ).map( id => this.Chat( id ) ),
 				... current ? [ this.Chat( current ) ] : [],
 				... this.mine_opened() ? [ this.Mine() ] : [],
+				... this.devices_opened() ? [ this.Devices() ] : [],
 			]
+		}
+
+		auto() {
+			this.Devices().imported()
+			this.store().data()
 		}
 
 		chat_peer( id: string ) {
@@ -95,20 +105,17 @@ namespace $.$$ {
 		message_out( next?: [ string, $bog_gipergram_tg_message ] | null ) {
 			if( !next ) return null
 			const [ peer, message ] = next
-			this.store().mine_add( { peer, id: message.id, text: message.text, date: message.date } )
+			this.store().mine_add( peer, message.id )
 			return next
 		}
 
-		mine_key( item: $bog_gipergram_store_mine ) {
-			return `${ item.peer }:${ item.id }`
-		}
-
 		mine_rows() {
-			return this.store().mine().map( item => this.Mine_row( this.mine_key( item ) ) )
+			return this.store().mine().map( key => this.Mine_row( key ) )
 		}
 
 		mine_item( key: string ) {
-			return this.store().mine().find( item => this.mine_key( item ) === key )!
+			const [ peer, id ] = key.split( ':' )
+			return this.tg().message_one( [ peer, Number( id ) ] )
 		}
 
 		mine_peer( key: string ) {
@@ -120,11 +127,11 @@ namespace $.$$ {
 		}
 
 		mine_text( key: string ) {
-			return this.mine_item( key ).text
+			return this.mine_item( key )?.text ?? ''
 		}
 
 		mine_time( key: string ) {
-			return this.time_text( this.mine_item( key ).date )
+			return this.time_text( this.mine_item( key )?.date ?? 0 )
 		}
 
 		mine_arg( key: string ) {

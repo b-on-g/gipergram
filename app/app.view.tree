@@ -6,6 +6,7 @@ $bog_gipergram_app $mol_book2
 	store $bog_gipergram_store
 	Login $bog_gipergram_login
 		tg <= tg
+	Devices $bog_gipergram_devices
 	Menu $mol_page
 		title \Gipergram
 		tools /
@@ -15,6 +16,12 @@ $bog_gipergram_app $mol_book2
 					mine \
 				sub /
 					<= Mine_icon $mol_icon_comment_account
+			<= Devices_link $mol_link
+				hint @ \Устройства и синхронизация
+				arg *
+					devices \
+				sub /
+					<= Devices_icon $mol_icon_cellphone_link
 			<= Logout $mol_button_minor
 				hint @ \Выйти
 				click? <=> logout? null

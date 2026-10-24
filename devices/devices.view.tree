@@ -1,0 +1,31 @@
+$bog_gipergram_devices $mol_page
+	title @ \Устройства
+	tools /
+		<= Close $mol_link
+			arg *
+				devices null
+			sub /
+				<= Close_icon $mol_icon_close
+	body /
+		<= Content $mol_list
+			rows /
+				<= Hint $mol_paragraph
+					title @ \Вкладки, отметки непрочитанного и мои сообщения синкаются через Giper Baza. Чтобы они были общими, на другом устройстве отсканируй код или открой ссылку. Ссылка секретная, это ключ аккаунта.
+				<= Qr $bog_qr
+					uri <= link \
+				<= Copy $mol_button_copy
+					text <= link
+					title @ \Скопировать ссылку
+				<= Import $mol_view
+					sub /
+						<= Input $mol_string
+							hint @ \Ссылка с другого устройства
+							value? <=> input? \
+						<= Apply $mol_button_minor
+							title @ \Применить
+							click? <=> apply? null
+				<= Status $mol_paragraph
+					title <= status? \
+	imported false
+	status_wrong @ \Это не ссылка аккаунта
+	status_same @ \Этот аккаунт уже здесь
