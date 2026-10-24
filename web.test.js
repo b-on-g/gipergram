@@ -2194,6 +2194,50 @@ var $;
 ;
 "use strict";
 var $;
+(function ($) {
+    $mol_test({
+        'encode empty'() {
+            $mol_assert_equal($mol_charset_encode(''), new Uint8Array([]));
+        },
+        'encode 1 octet'() {
+            $mol_assert_equal($mol_charset_encode('F'), new Uint8Array([0x46]));
+        },
+        'encode 2 octet'() {
+            $mol_assert_equal($mol_charset_encode('Б'), new Uint8Array([0xd0, 0x91]));
+        },
+        'encode 3 octet'() {
+            $mol_assert_equal($mol_charset_encode('ह'), new Uint8Array([0xe0, 0xa4, 0xb9]));
+        },
+        'encode 4 octet'() {
+            $mol_assert_equal($mol_charset_encode('𐍈'), new Uint8Array([0xf0, 0x90, 0x8d, 0x88]));
+        },
+        'encode surrogate pair'() {
+            $mol_assert_equal($mol_charset_encode('😀'), new Uint8Array([0xf0, 0x9f, 0x98, 0x80]));
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    const png = new Uint8Array([0x1a, 0x0a, 0x00, 0x49, 0x48, 0x78, 0xda]);
+    $mol_test({
+        'base64 encode string'() {
+            $mol_assert_equal($mol_base64_encode($mol_charset_encode('Hello, ΧΨΩЫ')), 'SGVsbG8sIM6nzqjOqdCr');
+        },
+        'base64 encode binary'() {
+            $mol_assert_equal($mol_base64_encode(png), 'GgoASUh42g==');
+        },
+        'base64 encode string with plus'() {
+            $mol_assert_equal($mol_base64_encode($mol_charset_encode('шоешпо')), '0YjQvtC10YjQv9C+');
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
 (function ($_1) {
     $mol_test_mocks.push(context => {
         class $mol_state_arg_mock extends $mol_state_arg {
@@ -2965,32 +3009,6 @@ var $;
 var $;
 (function ($) {
     $mol_test({
-        'encode empty'() {
-            $mol_assert_equal($mol_charset_encode(''), new Uint8Array([]));
-        },
-        'encode 1 octet'() {
-            $mol_assert_equal($mol_charset_encode('F'), new Uint8Array([0x46]));
-        },
-        'encode 2 octet'() {
-            $mol_assert_equal($mol_charset_encode('Б'), new Uint8Array([0xd0, 0x91]));
-        },
-        'encode 3 octet'() {
-            $mol_assert_equal($mol_charset_encode('ह'), new Uint8Array([0xe0, 0xa4, 0xb9]));
-        },
-        'encode 4 octet'() {
-            $mol_assert_equal($mol_charset_encode('𐍈'), new Uint8Array([0xf0, 0x90, 0x8d, 0x88]));
-        },
-        'encode surrogate pair'() {
-            $mol_assert_equal($mol_charset_encode('😀'), new Uint8Array([0xf0, 0x9f, 0x98, 0x80]));
-        },
-    });
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_test({
         'auto name'() {
             class Invalid extends $mol_error_mix {
             }
@@ -3098,6 +3116,60 @@ var $;
             },
         });
     })($$ = $_1.$$ || ($_1.$$ = {}));
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($_1) {
+    class $bog_gipergram_login_tg_fake extends $bog_gipergram_tg {
+        started = 0;
+        configured() {
+            return true;
+        }
+        qr_started() {
+            ++this.started;
+            return true;
+        }
+    }
+    function login_make($) {
+        const login = $bog_gipergram_login.make({ $ });
+        const tg = $bog_gipergram_login_tg_fake.make({ $ });
+        login.tg = () => tg;
+        return { login, tg };
+    }
+    $mol_test({
+        'qr login waits for token then shows the code'($) {
+            const { login, tg } = login_make($);
+            login.auto();
+            $mol_assert_equal(tg.started, 1);
+            $mol_assert_equal(login.form_rows()[0], login.Qr_wait());
+            tg.qr_uri('tg://login?token=abc');
+            $mol_assert_equal(login.form_rows()[0], login.Qr());
+            $mol_assert_equal(login.Qr().uri(), 'tg://login?token=abc');
+        },
+        'phone mode replaces qr and stops asking for it'($) {
+            const { login, tg } = login_make($);
+            login.phone_mode();
+            login.auto();
+            $mol_assert_equal(tg.started, 0);
+            $mol_assert_equal(login.form_rows()[0], login.Phone());
+            login.qr_mode();
+            $mol_assert_equal(login.form_rows()[0], login.Qr_wait());
+        },
+        'password asked by qr flow goes back to it'($) {
+            const { login, tg } = login_make($);
+            const asked = tg.password_ask();
+            $mol_assert_equal(login.form_rows()[0], login.Password());
+            let got = '';
+            asked.then(password => got = password);
+            login.password('secret');
+            login.password_check();
+            $mol_assert_equal(tg.password_wait, null);
+            $mol_assert_equal(login.password(), '');
+            return asked.then(() => $mol_assert_equal(got, 'secret'));
+        },
+    });
 })($ || ($ = {}));
 
 ;

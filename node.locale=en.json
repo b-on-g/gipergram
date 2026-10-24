@@ -19,6 +19,10 @@
 	"$bog_gipergram_login_Password_check_title": "Войти",
 	"$bog_gipergram_login_Password_hint": "Облачный пароль",
 	"$bog_gipergram_login_Phone_hint": "Телефон, +79991234567",
+	"$bog_gipergram_login_Phone_mode_title": "Войти по номеру телефона",
+	"$bog_gipergram_login_Qr_hint_title": "Открой Telegram на телефоне: Настройки → Устройства → Подключить устройство, и наведи камеру на код",
+	"$bog_gipergram_login_Qr_mode_title": "Войти по QR-коду",
+	"$bog_gipergram_login_Qr_wait_title": "Готовлю QR-код…",
 	"$bog_gipergram_login_Unconfigured_title": "Впиши api_id и api_hash с my.telegram.org в bog/gipergram/tg/tg.ts",
 	"$bog_gipergram_login_title": "Вход",
 	"$mol_text_code_Copy_hint": "Copy whole code"

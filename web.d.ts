@@ -2756,6 +2756,14 @@ declare namespace $ {
 }
 
 declare namespace $ {
+    function $mol_base64_encode(src: Uint8Array<ArrayBuffer>): string;
+}
+
+declare namespace $ {
+    function $mol_base64_encode_web(str: Uint8Array<ArrayBuffer>): string;
+}
+
+declare namespace $ {
     type $bog_gipergram_tg_dialog = {
         id: string;
         title: string;
@@ -2792,6 +2800,14 @@ declare namespace $ {
         password_needed(next?: boolean): boolean;
         code_send(phone: string): void;
         code_check(phone: string, code: string): void;
+        qr_uri(next?: string): string;
+        qr_error(next?: string): string;
+        password_wait: null | ((password: string) => void);
+        password_ask(): Promise<string>;
+        token_uri(token: Uint8Array<ArrayBuffer>): string;
+        qr_run(client: any): Promise<void>;
+        qr_running: boolean;
+        qr_started(): boolean;
         password_check(password: string): void;
         logout(): void;
         me(): {
@@ -2957,6 +2973,191 @@ declare namespace $ {
 
 declare namespace $ {
 
+	type $mol_svg__dom_name_bog_qr_1 = $mol_type_enforce<
+		string
+		,
+		ReturnType< $mol_svg['dom_name'] >
+	>
+	type $mol_svg__attr_bog_qr_2 = $mol_type_enforce<
+		({ 
+			'id': ReturnType< $bog_qr['gradient_id'] >,
+			'x1': ReturnType< $bog_qr['grad_x1'] >,
+			'y1': ReturnType< $bog_qr['grad_y1'] >,
+			'x2': ReturnType< $bog_qr['grad_x2'] >,
+			'y2': ReturnType< $bog_qr['grad_y2'] >,
+		})  & ReturnType< $mol_svg['attr'] >
+		,
+		ReturnType< $mol_svg['attr'] >
+	>
+	type $mol_svg__sub_bog_qr_3 = $mol_type_enforce<
+		ReturnType< $bog_qr['gradient_stop_list'] >
+		,
+		ReturnType< $mol_svg['sub'] >
+	>
+	type $mol_svg__dom_name_bog_qr_4 = $mol_type_enforce<
+		string
+		,
+		ReturnType< $mol_svg['dom_name'] >
+	>
+	type $mol_svg__sub_bog_qr_5 = $mol_type_enforce<
+		readonly(any)[]
+		,
+		ReturnType< $mol_svg['sub'] >
+	>
+	type $mol_svg_path__geometry_bog_qr_6 = $mol_type_enforce<
+		ReturnType< $bog_qr['modules_d'] >
+		,
+		ReturnType< $mol_svg_path['geometry'] >
+	>
+	type $mol_svg_path__attr_bog_qr_7 = $mol_type_enforce<
+		({ 
+			'fill': ReturnType< $bog_qr['gradient_fill'] >,
+		})  & ReturnType< $mol_svg_path['attr'] >
+		,
+		ReturnType< $mol_svg_path['attr'] >
+	>
+	type $mol_svg_path__geometry_bog_qr_8 = $mol_type_enforce<
+		ReturnType< $bog_qr['rings_d'] >
+		,
+		ReturnType< $mol_svg_path['geometry'] >
+	>
+	type $mol_svg_path__attr_bog_qr_9 = $mol_type_enforce<
+		({ 
+			'fill': ReturnType< $bog_qr['gradient_fill'] >,
+			'fill-rule': string,
+		})  & ReturnType< $mol_svg_path['attr'] >
+		,
+		ReturnType< $mol_svg_path['attr'] >
+	>
+	type $mol_svg_path__geometry_bog_qr_10 = $mol_type_enforce<
+		ReturnType< $bog_qr['centers_d'] >
+		,
+		ReturnType< $mol_svg_path['geometry'] >
+	>
+	type $mol_svg_path__attr_bog_qr_11 = $mol_type_enforce<
+		({ 
+			'fill': ReturnType< $bog_qr['gradient_fill'] >,
+		})  & ReturnType< $mol_svg_path['attr'] >
+		,
+		ReturnType< $mol_svg_path['attr'] >
+	>
+	type $mol_view__sub_bog_qr_12 = $mol_type_enforce<
+		ReturnType< $bog_qr['center'] >
+		,
+		ReturnType< $mol_view['sub'] >
+	>
+	type $mol_svg__dom_name_bog_qr_13 = $mol_type_enforce<
+		string
+		,
+		ReturnType< $mol_svg['dom_name'] >
+	>
+	type $mol_svg__attr_bog_qr_14 = $mol_type_enforce<
+		({ 
+			'x': ReturnType< $bog_qr['center_x'] >,
+			'y': ReturnType< $bog_qr['center_y'] >,
+			'width': ReturnType< $bog_qr['center_size'] >,
+			'height': ReturnType< $bog_qr['center_size'] >,
+		})  & ReturnType< $mol_svg['attr'] >
+		,
+		ReturnType< $mol_svg['attr'] >
+	>
+	type $mol_svg__sub_bog_qr_15 = $mol_type_enforce<
+		readonly(any)[]
+		,
+		ReturnType< $mol_svg['sub'] >
+	>
+	type $mol_svg__dom_name_bog_qr_16 = $mol_type_enforce<
+		string
+		,
+		ReturnType< $mol_svg['dom_name'] >
+	>
+	type $mol_svg__attr_bog_qr_17 = $mol_type_enforce<
+		({ 
+			'offset': ReturnType< $bog_qr['stop_offset'] >,
+			'stop-color': ReturnType< $bog_qr['stop_color'] >,
+		})  & ReturnType< $mol_svg['attr'] >
+		,
+		ReturnType< $mol_svg['attr'] >
+	>
+	export class $bog_qr extends $mol_svg_root {
+		stop_offset( id: any): string
+		stop_color( id: any): string
+		qr_view_box( ): string
+		grad_x1( ): string
+		grad_y1( ): string
+		grad_x2( ): string
+		grad_y2( ): string
+		gradient_stop_list( ): readonly(any)[]
+		Gradient( ): $mol_svg
+		Defs( ): $mol_svg
+		modules_d( ): string
+		Modules( ): $mol_svg_path
+		rings_d( ): string
+		Rings( ): $mol_svg_path
+		centers_d( ): string
+		Centers( ): $mol_svg_path
+		center_x( ): string
+		center_y( ): string
+		center_size( ): string
+		Center_body( ): $mol_view
+		Center_wrap( ): $mol_svg
+		uri( ): string
+		module_radius( ): number
+		finder_radius( ): number
+		gradient_angle( ): number
+		error_correction( ): string
+		quiet_zone( ): number
+		center( ): readonly(any)[]
+		gradient_id( ): string
+		gradient_fill( ): string
+		gradient_stops( ): readonly(any)[]
+		Stop( id: any): $mol_svg
+		view_box( ): ReturnType< $bog_qr['qr_view_box'] >
+		sub( ): readonly(any)[]
+	}
+	
+}
+
+//# sourceMappingURL=qr.view.tree.d.ts.map
+declare namespace $.$$ {
+    class $bog_qr extends $.$bog_qr {
+        gradient_id(): string;
+        gradient_fill(): string;
+        grad_x1(): string;
+        grad_y1(): string;
+        grad_x2(): string;
+        grad_y2(): string;
+        gradient_stop_list(): $.$mol_svg[];
+        stop_offset(index: number): string;
+        stop_color(index: number): any;
+        qr_lib(): any;
+        qr_matrix(): boolean[][] | null;
+        qr_view_box(): string;
+        qr_paths(): {
+            modules: string;
+            rings: string;
+            centers: string;
+        };
+        center_area(): {
+            x: number;
+            y: number;
+            size: number;
+        };
+        center_x(): string;
+        center_y(): string;
+        center_size(): string;
+        modules_d(): string;
+        rings_d(): string;
+        centers_d(): string;
+        rect_path(x: number, y: number, w: number, h: number, tl: number, tr: number, br: number, bl: number): string;
+    }
+}
+
+declare namespace $.$$ {
+}
+
+declare namespace $ {
+
 	export class $mol_hotkey2 extends $mol_plugin {
 		keydown( next?: any ): any
 		event( ): ({ 
@@ -3108,83 +3309,131 @@ declare namespace $ {
 		,
 		ReturnType< $mol_paragraph['title'] >
 	>
-	type $mol_string__hint_bog_gipergram_login_2 = $mol_type_enforce<
+	type $bog_qr__uri_bog_gipergram_login_2 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_login['qr_uri'] >
+		,
+		ReturnType< $bog_qr['uri'] >
+	>
+	type $mol_paragraph__title_bog_gipergram_login_3 = $mol_type_enforce<
+		string
+		,
+		ReturnType< $mol_paragraph['title'] >
+	>
+	type $mol_paragraph__title_bog_gipergram_login_4 = $mol_type_enforce<
+		string
+		,
+		ReturnType< $mol_paragraph['title'] >
+	>
+	type $mol_button_minor__title_bog_gipergram_login_5 = $mol_type_enforce<
+		string
+		,
+		ReturnType< $mol_button_minor['title'] >
+	>
+	type $mol_button_minor__click_bog_gipergram_login_6 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_login['phone_mode'] >
+		,
+		ReturnType< $mol_button_minor['click'] >
+	>
+	type $mol_button_minor__title_bog_gipergram_login_7 = $mol_type_enforce<
+		string
+		,
+		ReturnType< $mol_button_minor['title'] >
+	>
+	type $mol_button_minor__click_bog_gipergram_login_8 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_login['qr_mode'] >
+		,
+		ReturnType< $mol_button_minor['click'] >
+	>
+	type $mol_string__hint_bog_gipergram_login_9 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_string['hint'] >
 	>
-	type $mol_string__type_bog_gipergram_login_3 = $mol_type_enforce<
+	type $mol_string__type_bog_gipergram_login_10 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_string['type'] >
 	>
-	type $mol_string__value_bog_gipergram_login_4 = $mol_type_enforce<
+	type $mol_string__value_bog_gipergram_login_11 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_login['phone'] >
 		,
 		ReturnType< $mol_string['value'] >
 	>
-	type $mol_button_major__title_bog_gipergram_login_5 = $mol_type_enforce<
+	type $mol_button_major__title_bog_gipergram_login_12 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_button_major['title'] >
 	>
-	type $mol_button_major__click_bog_gipergram_login_6 = $mol_type_enforce<
+	type $mol_button_major__click_bog_gipergram_login_13 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_login['code_send'] >
 		,
 		ReturnType< $mol_button_major['click'] >
 	>
-	type $mol_string__hint_bog_gipergram_login_7 = $mol_type_enforce<
+	type $mol_string__hint_bog_gipergram_login_14 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_string['hint'] >
 	>
-	type $mol_string__value_bog_gipergram_login_8 = $mol_type_enforce<
+	type $mol_string__value_bog_gipergram_login_15 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_login['code'] >
 		,
 		ReturnType< $mol_string['value'] >
 	>
-	type $mol_button_major__title_bog_gipergram_login_9 = $mol_type_enforce<
+	type $mol_button_major__title_bog_gipergram_login_16 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_button_major['title'] >
 	>
-	type $mol_button_major__click_bog_gipergram_login_10 = $mol_type_enforce<
+	type $mol_button_major__click_bog_gipergram_login_17 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_login['code_check'] >
 		,
 		ReturnType< $mol_button_major['click'] >
 	>
-	type $mol_string__hint_bog_gipergram_login_11 = $mol_type_enforce<
+	type $mol_string__hint_bog_gipergram_login_18 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_string['hint'] >
 	>
-	type $mol_string__type_bog_gipergram_login_12 = $mol_type_enforce<
+	type $mol_string__type_bog_gipergram_login_19 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_string['type'] >
 	>
-	type $mol_string__value_bog_gipergram_login_13 = $mol_type_enforce<
+	type $mol_string__value_bog_gipergram_login_20 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_login['password'] >
 		,
 		ReturnType< $mol_string['value'] >
 	>
-	type $mol_button_major__title_bog_gipergram_login_14 = $mol_type_enforce<
+	type $mol_button_major__title_bog_gipergram_login_21 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_button_major['title'] >
 	>
-	type $mol_button_major__click_bog_gipergram_login_15 = $mol_type_enforce<
+	type $mol_button_major__click_bog_gipergram_login_22 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_login['password_check'] >
 		,
 		ReturnType< $mol_button_major['click'] >
 	>
-	type $mol_list__rows_bog_gipergram_login_16 = $mol_type_enforce<
+	type $mol_paragraph__title_bog_gipergram_login_23 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_login['error'] >
+		,
+		ReturnType< $mol_paragraph['title'] >
+	>
+	type $mol_list__rows_bog_gipergram_login_24 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_login['form_rows'] >
 		,
 		ReturnType< $mol_list['rows'] >
 	>
 	export class $bog_gipergram_login extends $mol_page {
 		Unconfigured( ): $mol_paragraph
+		qr_uri( ): string
+		Qr( ): $bog_qr
+		Qr_wait( ): $mol_paragraph
+		Qr_hint( ): $mol_paragraph
+		phone_mode( next?: any ): any
+		Phone_mode( ): $mol_button_minor
+		qr_mode( next?: any ): any
+		Qr_mode( ): $mol_button_minor
 		phone( next?: string ): string
 		Phone( ): $mol_string
 		code_send( next?: any ): any
@@ -3197,10 +3446,13 @@ declare namespace $ {
 		Password( ): $mol_string
 		password_check( next?: any ): any
 		Password_check( ): $mol_button_major
+		error( ): string
+		Error( ): $mol_paragraph
 		form_rows( ): readonly(any)[]
 		Form( ): $mol_list
 		tg( ): $bog_gipergram_tg
 		title( ): string
+		mode( next?: string ): string
 		body( ): readonly(any)[]
 	}
 	
@@ -3209,7 +3461,13 @@ declare namespace $ {
 //# sourceMappingURL=login.view.tree.d.ts.map
 declare namespace $.$$ {
     class $bog_gipergram_login extends $.$bog_gipergram_login {
-        form_rows(): $.$mol_paragraph[] | ($.$mol_string | $mol_button_major)[];
+        form_rows(): ($.$mol_paragraph | $.$bog_qr | $.$mol_string | $mol_button_minor)[];
+        step_rows(): ($.$mol_paragraph | $.$bog_qr | $mol_button_minor)[] | ($.$mol_string | $mol_button_minor)[];
+        qr_uri(): string;
+        error(): string;
+        auto(): void;
+        phone_mode(): void;
+        qr_mode(): void;
         code_send(): void;
         code_check(): void;
         password_check(): void;

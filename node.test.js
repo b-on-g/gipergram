@@ -7483,6 +7483,32 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $mol_base64_encode(src) {
+        return src.toBase64();
+    }
+    $.$mol_base64_encode = $mol_base64_encode;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_base64_encode_node(str) {
+        if (!str)
+            return '';
+        const buf = Buffer.isBuffer(str) ? str : Buffer.from(str);
+        return buf.toString('base64');
+    }
+    $.$mol_base64_encode_node = $mol_base64_encode_node;
+    if (!('toBase64' in Uint8Array.prototype)) {
+        $.$mol_base64_encode = $mol_base64_encode_node;
+    }
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
     class $bog_gipergram_tg extends $mol_object {
         api_id() {
             return 0;
@@ -7556,7 +7582,54 @@ var $;
             this.session_save();
             this.authorized(true);
         }
+        qr_uri(next) {
+            return next ?? '';
+        }
+        qr_error(next) {
+            return next ?? '';
+        }
+        password_wait = null;
+        password_ask() {
+            this.password_needed(true);
+            return new Promise(done => this.password_wait = done);
+        }
+        token_uri(token) {
+            const base64 = $mol_base64_encode(new Uint8Array(token));
+            return 'tg://login?token=' + base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        }
+        async qr_run(client) {
+            try {
+                await client.signInUserWithQrCode(this.credentials(), {
+                    qrCode: async ({ token }) => { this.qr_uri(this.token_uri(token)); },
+                    password: () => this.password_ask(),
+                    onError: async (error) => {
+                        this.qr_error(error.message);
+                        return false;
+                    },
+                });
+                this.session(client.session.save());
+                this.authorized(true);
+            }
+            catch (error) {
+                this.qr_error(error?.message ?? String(error));
+            }
+        }
+        qr_running = false;
+        qr_started() {
+            const client = this.client();
+            if (this.qr_running)
+                return true;
+            this.qr_running = true;
+            this.qr_run(client).finally(() => this.qr_running = false);
+            return true;
+        }
         password_check(password) {
+            if (this.password_wait) {
+                this.qr_error('');
+                this.password_wait(password);
+                this.password_wait = null;
+                return;
+            }
             $mol_wire_sync(this.client()).signInWithPassword(this.credentials(), {
                 password: async () => password,
                 onError: async (error) => { throw error; },
@@ -7716,6 +7789,15 @@ var $;
     __decorate([
         $mol_action
     ], $bog_gipergram_tg.prototype, "code_check", null);
+    __decorate([
+        $mol_mem
+    ], $bog_gipergram_tg.prototype, "qr_uri", null);
+    __decorate([
+        $mol_mem
+    ], $bog_gipergram_tg.prototype, "qr_error", null);
+    __decorate([
+        $mol_mem
+    ], $bog_gipergram_tg.prototype, "qr_started", null);
     __decorate([
         $mol_action
     ], $bog_gipergram_tg.prototype, "password_check", null);
@@ -8126,6 +8208,422 @@ var $;
 })($ || ($ = {}));
 
 ;
+	($.$bog_qr) = class $bog_qr extends ($.$mol_svg_root) {
+		stop_offset(id){
+			return "0%";
+		}
+		stop_color(id){
+			return "";
+		}
+		qr_view_box(){
+			return "0 0 1 1";
+		}
+		grad_x1(){
+			return "0";
+		}
+		grad_y1(){
+			return "0";
+		}
+		grad_x2(){
+			return "1";
+		}
+		grad_y2(){
+			return "1";
+		}
+		gradient_stop_list(){
+			return [];
+		}
+		Gradient(){
+			const obj = new this.$.$mol_svg();
+			(obj.dom_name) = () => ("linearGradient");
+			(obj.attr) = () => ({
+				...(this.$.$mol_svg.prototype.attr.call(obj)), 
+				"id": (this.gradient_id()), 
+				"x1": (this.grad_x1()), 
+				"y1": (this.grad_y1()), 
+				"x2": (this.grad_x2()), 
+				"y2": (this.grad_y2())
+			});
+			(obj.sub) = () => ((this.gradient_stop_list()));
+			return obj;
+		}
+		Defs(){
+			const obj = new this.$.$mol_svg();
+			(obj.dom_name) = () => ("defs");
+			(obj.sub) = () => ([(this.Gradient())]);
+			return obj;
+		}
+		modules_d(){
+			return "";
+		}
+		Modules(){
+			const obj = new this.$.$mol_svg_path();
+			(obj.geometry) = () => ((this.modules_d()));
+			(obj.attr) = () => ({...(this.$.$mol_svg_path.prototype.attr.call(obj)), "fill": (this.gradient_fill())});
+			return obj;
+		}
+		rings_d(){
+			return "";
+		}
+		Rings(){
+			const obj = new this.$.$mol_svg_path();
+			(obj.geometry) = () => ((this.rings_d()));
+			(obj.attr) = () => ({
+				...(this.$.$mol_svg_path.prototype.attr.call(obj)), 
+				"fill": (this.gradient_fill()), 
+				"fill-rule": "evenodd"
+			});
+			return obj;
+		}
+		centers_d(){
+			return "";
+		}
+		Centers(){
+			const obj = new this.$.$mol_svg_path();
+			(obj.geometry) = () => ((this.centers_d()));
+			(obj.attr) = () => ({...(this.$.$mol_svg_path.prototype.attr.call(obj)), "fill": (this.gradient_fill())});
+			return obj;
+		}
+		center_x(){
+			return "0";
+		}
+		center_y(){
+			return "0";
+		}
+		center_size(){
+			return "0";
+		}
+		Center_body(){
+			const obj = new this.$.$mol_view();
+			(obj.sub) = () => ((this.center()));
+			return obj;
+		}
+		Center_wrap(){
+			const obj = new this.$.$mol_svg();
+			(obj.dom_name) = () => ("foreignObject");
+			(obj.attr) = () => ({
+				...(this.$.$mol_svg.prototype.attr.call(obj)), 
+				"x": (this.center_x()), 
+				"y": (this.center_y()), 
+				"width": (this.center_size()), 
+				"height": (this.center_size())
+			});
+			(obj.sub) = () => ([(this.Center_body())]);
+			return obj;
+		}
+		uri(){
+			return "";
+		}
+		module_radius(){
+			return 0.35;
+		}
+		finder_radius(){
+			return 1.2;
+		}
+		gradient_angle(){
+			return 45;
+		}
+		error_correction(){
+			return "M";
+		}
+		quiet_zone(){
+			return 2;
+		}
+		center(){
+			return [];
+		}
+		gradient_id(){
+			return "qr-grad";
+		}
+		gradient_fill(){
+			return "url(#qr-grad)";
+		}
+		gradient_stops(){
+			return ["var(--mol_theme_special)", "var(--mol_theme_focus)"];
+		}
+		Stop(id){
+			const obj = new this.$.$mol_svg();
+			(obj.dom_name) = () => ("stop");
+			(obj.attr) = () => ({
+				...(this.$.$mol_svg.prototype.attr.call(obj)), 
+				"offset": (this.stop_offset(id)), 
+				"stop-color": (this.stop_color(id))
+			});
+			return obj;
+		}
+		view_box(){
+			return (this.qr_view_box());
+		}
+		sub(){
+			return [
+				(this.Defs()), 
+				(this.Modules()), 
+				(this.Rings()), 
+				(this.Centers()), 
+				(this.Center_wrap())
+			];
+		}
+	};
+	($mol_mem(($.$bog_qr.prototype), "Gradient"));
+	($mol_mem(($.$bog_qr.prototype), "Defs"));
+	($mol_mem(($.$bog_qr.prototype), "Modules"));
+	($mol_mem(($.$bog_qr.prototype), "Rings"));
+	($mol_mem(($.$bog_qr.prototype), "Centers"));
+	($mol_mem(($.$bog_qr.prototype), "Center_body"));
+	($mol_mem(($.$bog_qr.prototype), "Center_wrap"));
+	($mol_mem_key(($.$bog_qr.prototype), "Stop"));
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        let grad_counter = 0;
+        class $bog_qr extends $.$bog_qr {
+            gradient_id() {
+                return 'qr-grad-' + (++grad_counter);
+            }
+            gradient_fill() {
+                return `url(#${this.gradient_id()})`;
+            }
+            grad_x1() {
+                const a = this.gradient_angle() * Math.PI / 180;
+                return String(0.5 - Math.cos(a) * 0.5);
+            }
+            grad_y1() {
+                const a = this.gradient_angle() * Math.PI / 180;
+                return String(0.5 - Math.sin(a) * 0.5);
+            }
+            grad_x2() {
+                const a = this.gradient_angle() * Math.PI / 180;
+                return String(0.5 + Math.cos(a) * 0.5);
+            }
+            grad_y2() {
+                const a = this.gradient_angle() * Math.PI / 180;
+                return String(0.5 + Math.sin(a) * 0.5);
+            }
+            gradient_stop_list() {
+                const colors = this.gradient_stops();
+                return colors.map((_, i) => this.Stop(i));
+            }
+            stop_offset(index) {
+                const colors = this.gradient_stops();
+                if (colors.length <= 1)
+                    return '0%';
+                return Math.round(index / (colors.length - 1) * 100) + '%';
+            }
+            stop_color(index) {
+                return this.gradient_stops()[index];
+            }
+            qr_lib() {
+                return $mol_import.script('https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js');
+            }
+            qr_matrix() {
+                this.qr_lib();
+                const data = this.uri();
+                if (!data)
+                    return null;
+                const qr = qrcode(0, this.error_correction());
+                qr.addData(data);
+                qr.make();
+                const count = qr.getModuleCount();
+                const matrix = [];
+                for (let r = 0; r < count; r++) {
+                    matrix[r] = [];
+                    for (let c = 0; c < count; c++) {
+                        matrix[r][c] = qr.isDark(r, c);
+                    }
+                }
+                return matrix;
+            }
+            qr_view_box() {
+                const matrix = this.qr_matrix();
+                if (!matrix)
+                    return '0 0 1 1';
+                const total = matrix.length + this.quiet_zone() * 2;
+                return `0 0 ${total} ${total}`;
+            }
+            qr_paths() {
+                const matrix = this.qr_matrix();
+                if (!matrix)
+                    return { modules: '', rings: '', centers: '' };
+                const count = matrix.length;
+                const quiet = this.quiet_zone();
+                const r = this.module_radius();
+                const dark = (row, col) => row >= 0 && row < count && col >= 0 && col < count && matrix[row][col];
+                const isFinder = (row, col) => (row < 7 && col < 7) || (row < 7 && col >= count - 7) || (row >= count - 7 && col < 7);
+                const hasCenter = this.center().length > 0;
+                const centerRadius = hasCenter ? count * 0.15 : 0;
+                const centerMid = count / 2;
+                const isCenter = (row, col) => {
+                    if (!hasCenter)
+                        return false;
+                    const dx = col + 0.5 - centerMid;
+                    const dy = row + 0.5 - centerMid;
+                    return dx * dx + dy * dy < centerRadius * centerRadius;
+                };
+                let modules = '';
+                for (let row = 0; row < count; row++) {
+                    for (let col = 0; col < count; col++) {
+                        if (!matrix[row][col])
+                            continue;
+                        if (isFinder(row, col))
+                            continue;
+                        if (isCenter(row, col))
+                            continue;
+                        const x = col + quiet;
+                        const y = row + quiet;
+                        const top = dark(row - 1, col);
+                        const bottom = dark(row + 1, col);
+                        const left = dark(row, col - 1);
+                        const right = dark(row, col + 1);
+                        const alone = !top && !bottom && !left && !right;
+                        if (alone) {
+                            const cx = x + 0.5;
+                            const cy = y + 0.5;
+                            const cr = 0.5;
+                            modules += `M${cx - cr},${cy}A${cr},${cr},0,1,1,${cx + cr},${cy}A${cr},${cr},0,1,1,${cx - cr},${cy}Z`;
+                        }
+                        else {
+                            const tl = !top && !left ? r : 0;
+                            const tr = !top && !right ? r : 0;
+                            const br = !bottom && !right ? r : 0;
+                            const bl = !bottom && !left ? r : 0;
+                            modules += this.rect_path(x, y, 1, 1, tl, tr, br, bl);
+                        }
+                    }
+                }
+                const fr = this.finder_radius();
+                const finders = [
+                    [quiet, quiet],
+                    [count - 7 + quiet, quiet],
+                    [quiet, count - 7 + quiet],
+                ];
+                let rings = '';
+                let centers = '';
+                for (const [fx, fy] of finders) {
+                    rings += this.rect_path(fx, fy, 7, 7, fr, fr, fr, fr);
+                    rings += this.rect_path(fx + 1, fy + 1, 5, 5, fr * 0.7, fr * 0.7, fr * 0.7, fr * 0.7);
+                    centers += this.rect_path(fx + 2, fy + 2, 3, 3, fr * 0.5, fr * 0.5, fr * 0.5, fr * 0.5);
+                }
+                return { modules, rings, centers };
+            }
+            center_area() {
+                const matrix = this.qr_matrix();
+                if (!matrix || this.center().length === 0)
+                    return { x: 0, y: 0, size: 0 };
+                const count = matrix.length;
+                const quiet = this.quiet_zone();
+                const centerSize = count * 0.3;
+                const total = count + quiet * 2;
+                return {
+                    x: (total - centerSize) / 2,
+                    y: (total - centerSize) / 2,
+                    size: centerSize,
+                };
+            }
+            center_x() {
+                return String(this.center_area().x);
+            }
+            center_y() {
+                return String(this.center_area().y);
+            }
+            center_size() {
+                return String(this.center_area().size);
+            }
+            modules_d() {
+                return this.qr_paths().modules;
+            }
+            rings_d() {
+                return this.qr_paths().rings;
+            }
+            centers_d() {
+                return this.qr_paths().centers;
+            }
+            rect_path(x, y, w, h, tl, tr, br, bl) {
+                return [
+                    `M${x + tl},${y}`,
+                    `H${x + w - tr}`,
+                    tr ? `A${tr},${tr},0,0,1,${x + w},${y + tr}` : '',
+                    `V${y + h - br}`,
+                    br ? `A${br},${br},0,0,1,${x + w - br},${y + h}` : '',
+                    `H${x + bl}`,
+                    bl ? `A${bl},${bl},0,0,1,${x},${y + h - bl}` : '',
+                    `V${y + tl}`,
+                    tl ? `A${tl},${tl},0,0,1,${x + tl},${y}` : '',
+                    'Z',
+                ]
+                    .filter(Boolean)
+                    .join('');
+            }
+        }
+        __decorate([
+            $mol_mem
+        ], $bog_qr.prototype, "gradient_id", null);
+        __decorate([
+            $mol_mem
+        ], $bog_qr.prototype, "gradient_fill", null);
+        __decorate([
+            $mol_mem
+        ], $bog_qr.prototype, "grad_x1", null);
+        __decorate([
+            $mol_mem
+        ], $bog_qr.prototype, "grad_y1", null);
+        __decorate([
+            $mol_mem
+        ], $bog_qr.prototype, "grad_x2", null);
+        __decorate([
+            $mol_mem
+        ], $bog_qr.prototype, "grad_y2", null);
+        __decorate([
+            $mol_mem
+        ], $bog_qr.prototype, "gradient_stop_list", null);
+        __decorate([
+            $mol_mem
+        ], $bog_qr.prototype, "qr_lib", null);
+        __decorate([
+            $mol_mem
+        ], $bog_qr.prototype, "qr_matrix", null);
+        __decorate([
+            $mol_mem
+        ], $bog_qr.prototype, "qr_view_box", null);
+        __decorate([
+            $mol_mem
+        ], $bog_qr.prototype, "qr_paths", null);
+        __decorate([
+            $mol_mem
+        ], $bog_qr.prototype, "center_area", null);
+        $$.$bog_qr = $bog_qr;
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        $mol_style_define($bog_qr, {
+            width: '300px',
+            height: '300px',
+            Center_body: {
+                width: '80%',
+                height: '80%',
+                position: 'absolute',
+                top: '10%',
+                left: '10%',
+            },
+        });
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+
+;
 	($.$mol_hotkey2) = class $mol_hotkey2 extends ($.$mol_plugin) {
 		keydown(next){
 			if(next !== undefined) return next;
@@ -8493,6 +8991,44 @@ var $;
 			(obj.title) = () => ((this.$.$mol_locale.text("$bog_gipergram_login_Unconfigured_title")));
 			return obj;
 		}
+		qr_uri(){
+			return "";
+		}
+		Qr(){
+			const obj = new this.$.$bog_qr();
+			(obj.uri) = () => ((this.qr_uri()));
+			return obj;
+		}
+		Qr_wait(){
+			const obj = new this.$.$mol_paragraph();
+			(obj.title) = () => ((this.$.$mol_locale.text("$bog_gipergram_login_Qr_wait_title")));
+			return obj;
+		}
+		Qr_hint(){
+			const obj = new this.$.$mol_paragraph();
+			(obj.title) = () => ((this.$.$mol_locale.text("$bog_gipergram_login_Qr_hint_title")));
+			return obj;
+		}
+		phone_mode(next){
+			if(next !== undefined) return next;
+			return null;
+		}
+		Phone_mode(){
+			const obj = new this.$.$mol_button_minor();
+			(obj.title) = () => ((this.$.$mol_locale.text("$bog_gipergram_login_Phone_mode_title")));
+			(obj.click) = (next) => ((this.phone_mode(next)));
+			return obj;
+		}
+		qr_mode(next){
+			if(next !== undefined) return next;
+			return null;
+		}
+		Qr_mode(){
+			const obj = new this.$.$mol_button_minor();
+			(obj.title) = () => ((this.$.$mol_locale.text("$bog_gipergram_login_Qr_mode_title")));
+			(obj.click) = (next) => ((this.qr_mode(next)));
+			return obj;
+		}
 		phone(next){
 			if(next !== undefined) return next;
 			return "";
@@ -8555,15 +9091,29 @@ var $;
 			(obj.click) = (next) => ((this.password_check(next)));
 			return obj;
 		}
+		error(){
+			return "";
+		}
+		Error(){
+			const obj = new this.$.$mol_paragraph();
+			(obj.title) = () => ((this.error()));
+			return obj;
+		}
 		form_rows(){
 			return [
 				(this.Unconfigured()), 
+				(this.Qr()), 
+				(this.Qr_wait()), 
+				(this.Qr_hint()), 
+				(this.Phone_mode()), 
+				(this.Qr_mode()), 
 				(this.Phone()), 
 				(this.Code_send()), 
 				(this.Code()), 
 				(this.Code_check()), 
 				(this.Password()), 
-				(this.Password_check())
+				(this.Password_check()), 
+				(this.Error())
 			];
 		}
 		Form(){
@@ -8578,11 +9128,22 @@ var $;
 		title(){
 			return (this.$.$mol_locale.text("$bog_gipergram_login_title"));
 		}
+		mode(next){
+			if(next !== undefined) return next;
+			return "qr";
+		}
 		body(){
 			return [(this.Form())];
 		}
 	};
 	($mol_mem(($.$bog_gipergram_login.prototype), "Unconfigured"));
+	($mol_mem(($.$bog_gipergram_login.prototype), "Qr"));
+	($mol_mem(($.$bog_gipergram_login.prototype), "Qr_wait"));
+	($mol_mem(($.$bog_gipergram_login.prototype), "Qr_hint"));
+	($mol_mem(($.$bog_gipergram_login.prototype), "phone_mode"));
+	($mol_mem(($.$bog_gipergram_login.prototype), "Phone_mode"));
+	($mol_mem(($.$bog_gipergram_login.prototype), "qr_mode"));
+	($mol_mem(($.$bog_gipergram_login.prototype), "Qr_mode"));
 	($mol_mem(($.$bog_gipergram_login.prototype), "phone"));
 	($mol_mem(($.$bog_gipergram_login.prototype), "Phone"));
 	($mol_mem(($.$bog_gipergram_login.prototype), "code_send"));
@@ -8595,8 +9156,10 @@ var $;
 	($mol_mem(($.$bog_gipergram_login.prototype), "Password"));
 	($mol_mem(($.$bog_gipergram_login.prototype), "password_check"));
 	($mol_mem(($.$bog_gipergram_login.prototype), "Password_check"));
+	($mol_mem(($.$bog_gipergram_login.prototype), "Error"));
 	($mol_mem(($.$bog_gipergram_login.prototype), "Form"));
 	($mol_mem(($.$bog_gipergram_login.prototype), "tg"));
+	($mol_mem(($.$bog_gipergram_login.prototype), "mode"));
 
 
 ;
@@ -8614,11 +9177,40 @@ var $;
                 const tg = this.tg();
                 if (!tg.configured())
                     return [this.Unconfigured()];
+                return [
+                    ...this.step_rows(),
+                    ...this.error() ? [this.Error()] : [],
+                ];
+            }
+            step_rows() {
+                const tg = this.tg();
                 if (tg.password_needed())
                     return [this.Password(), this.Password_check()];
+                if (this.mode() === 'qr')
+                    return [
+                        this.qr_uri() ? this.Qr() : this.Qr_wait(),
+                        this.Qr_hint(),
+                        this.Phone_mode(),
+                    ];
                 if (tg.code_hash())
                     return [this.Code(), this.Code_check()];
-                return [this.Phone(), this.Code_send()];
+                return [this.Phone(), this.Code_send(), this.Qr_mode()];
+            }
+            qr_uri() {
+                return this.tg().qr_uri();
+            }
+            error() {
+                return this.tg().qr_error();
+            }
+            auto() {
+                if (this.tg().configured() && this.mode() === 'qr')
+                    this.tg().qr_started();
+            }
+            phone_mode() {
+                this.mode('phone');
+            }
+            qr_mode() {
+                this.mode('qr');
             }
             code_send() {
                 this.tg().code_send(this.phone());
@@ -8628,8 +9220,15 @@ var $;
             }
             password_check() {
                 this.tg().password_check(this.password());
+                this.password('');
             }
         }
+        __decorate([
+            $mol_action
+        ], $bog_gipergram_login.prototype, "phone_mode", null);
+        __decorate([
+            $mol_action
+        ], $bog_gipergram_login.prototype, "qr_mode", null);
         __decorate([
             $mol_action
         ], $bog_gipergram_login.prototype, "code_send", null);
@@ -8654,6 +9253,17 @@ var $;
                 gap: $mol_gap.block,
                 maxWidth: '24rem',
                 padding: $mol_gap.block,
+            },
+            Qr: {
+                width: '16rem',
+                height: '16rem',
+                align: { self: 'center' },
+            },
+            Qr_hint: {
+                color: $mol_theme.shade,
+            },
+            Error: {
+                color: $mol_theme.special,
             },
         });
     })($$ = $.$$ || ($.$$ = {}));
@@ -14462,6 +15072,24 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    const png = new Uint8Array([0x1a, 0x0a, 0x00, 0x49, 0x48, 0x78, 0xda]);
+    $mol_test({
+        'base64 encode string'() {
+            $mol_assert_equal($mol_base64_encode($mol_charset_encode('Hello, ΧΨΩЫ')), 'SGVsbG8sIM6nzqjOqdCr');
+        },
+        'base64 encode binary'() {
+            $mol_assert_equal($mol_base64_encode(png), 'GgoASUh42g==');
+        },
+        'base64 encode string with plus'() {
+            $mol_assert_equal($mol_base64_encode($mol_charset_encode('шоешпо')), '0YjQvtC10YjQv9C+');
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
     $mol_test({
         'auto name'() {
             class Invalid extends $mol_error_mix {
@@ -15284,6 +15912,60 @@ var $;
             },
         });
     })($$ = $_1.$$ || ($_1.$$ = {}));
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($_1) {
+    class $bog_gipergram_login_tg_fake extends $bog_gipergram_tg {
+        started = 0;
+        configured() {
+            return true;
+        }
+        qr_started() {
+            ++this.started;
+            return true;
+        }
+    }
+    function login_make($) {
+        const login = $bog_gipergram_login.make({ $ });
+        const tg = $bog_gipergram_login_tg_fake.make({ $ });
+        login.tg = () => tg;
+        return { login, tg };
+    }
+    $mol_test({
+        'qr login waits for token then shows the code'($) {
+            const { login, tg } = login_make($);
+            login.auto();
+            $mol_assert_equal(tg.started, 1);
+            $mol_assert_equal(login.form_rows()[0], login.Qr_wait());
+            tg.qr_uri('tg://login?token=abc');
+            $mol_assert_equal(login.form_rows()[0], login.Qr());
+            $mol_assert_equal(login.Qr().uri(), 'tg://login?token=abc');
+        },
+        'phone mode replaces qr and stops asking for it'($) {
+            const { login, tg } = login_make($);
+            login.phone_mode();
+            login.auto();
+            $mol_assert_equal(tg.started, 0);
+            $mol_assert_equal(login.form_rows()[0], login.Phone());
+            login.qr_mode();
+            $mol_assert_equal(login.form_rows()[0], login.Qr_wait());
+        },
+        'password asked by qr flow goes back to it'($) {
+            const { login, tg } = login_make($);
+            const asked = tg.password_ask();
+            $mol_assert_equal(login.form_rows()[0], login.Password());
+            let got = '';
+            asked.then(password => got = password);
+            login.password('secret');
+            login.password_check();
+            $mol_assert_equal(tg.password_wait, null);
+            $mol_assert_equal(login.password(), '');
+            return asked.then(() => $mol_assert_equal(got, 'secret'));
+        },
+    });
 })($ || ($ = {}));
 
 ;
