@@ -1,0 +1,614 @@
+$mol_scroll $mol_view
+	scroll_top? 0
+	scroll_left? 0
+	attr *
+		^
+		tabindex <= tabindex -1
+	event *
+		^
+		scroll? <=> event_scroll? null
+
+$mol_book2 $mol_scroll
+	menu_title \
+	sub /$mol_view
+		^ pages <= pages_deep /$mol_view
+		^ placeholders /$mol_view
+			<= Placeholder $mol_view
+	minimal_width 0
+	Gap* $mol_view title \
+
+$bog_theme_auto $mol_plugin
+	themes <= themes_default /
+	theme_light \$mol_theme_light
+	theme_dark \$mol_theme_dark
+	mode? \system
+	mode_next? null
+	theme_next? null
+	theme_prev? null
+	theme_set? null
+	is_light_now false
+	attr * mol_theme <= theme \
+
+$mol_svg $mol_view
+	dom_name \svg
+	dom_name_space \http://www.w3.org/2000/svg
+	font_size 16
+	font_family \
+	style_size *
+
+$mol_svg_root $mol_svg
+	dom_name \svg
+	attr *
+		^
+		viewBox <= view_box \0 0 100 100
+		preserveAspectRatio <= aspect \xMidYMid
+
+$mol_svg_path $mol_svg
+	dom_name \path
+	attr *
+		^
+		d <= geometry \
+
+
+$mol_icon $mol_svg_root
+	view_box \0 0 24 24
+	minimal_width 16
+	minimal_height 16
+	sub /
+		<= Path $mol_svg_path
+			geometry <= path \
+
+$mol_icon_comment $mol_icon path \M9,22A1,1 0 0,1 8,21V18H4A2,2 0 0,1 2,16V4C2,2.89 2.9,2 4,2H20A2,2 0 0,1 22,4V16A2,2 0 0,1 20,18H13.9L10.2,21.71C10,21.9 9.75,22 9.5,22V22H9Z
+
+$mol_icon_comment_account $mol_icon path \M9,22A1,1 0 0,1 8,21V18H4A2,2 0 0,1 2,16V4C2,2.89 2.9,2 4,2H20A2,2 0 0,1 22,4V16A2,2 0 0,1 20,18H13.9L10.2,21.71C10,21.9 9.75,22 9.5,22V22H9M16,14V13C16,11.67 13.33,11 12,11C10.67,11 8,11.67 8,13V14H16M12,6A2,2 0 0,0 10,8A2,2 0 0,0 12,10A2,2 0 0,0 14,8A2,2 0 0,0 12,6Z
+
+$mol_link $mol_view
+	uri \
+	dom_name \a
+	uri_off \
+	uri_native null
+	external false
+	attr *
+		^
+		href <= uri_unsafe <= uri_toggle \
+		title <= hint_safe <= hint \
+		target <= target \_self
+		download <= file_name \
+		mol_link_current <= current false
+		rel <= relation \
+	sub /$mol_view_content
+		<= title
+	arg *
+	event *
+		^
+		click? <=> click? <=> event_click? null
+
+$mol_icon_logout $mol_icon path \M17 7L15.59 8.41L18.17 11H8V13H18.17L15.59 15.58L17 17L22 12M4 5H12V3H4C2.9 3 2 3.9 2 5V19C2 20.1 2.9 21 4 21H12V19H4V5Z
+
+$mol_speck $mol_view
+	theme \$mol_theme_accent
+	sub /
+		<= value null
+
+$mol_button $mol_view
+	enabled true
+	click? null
+	event_click? null
+	status? /
+	event *
+		^
+		click? <=> activate? <=> event_activate? null
+		dblclick? <=> clicks? null
+		keydown? <=> key_press? <=> event_key_press? null
+	attr *
+		^
+		disabled <= disabled false
+		role \button
+		tabindex <= tab_index 0
+		title <= hint_safe <= hint \
+	sub /$mol_view_content
+		<= title
+	Speck $mol_speck
+		value <= error \
+
+$mol_button_typed $mol_button
+	minimal_height 40
+	minimal_width 40
+
+$mol_button_minor $mol_button_typed
+
+$mol_avatar $mol_icon
+	view_box \0 0 24 24
+	id \
+	path \M 12 12 l 0 0 M 0 0 l 0 0 M 24 24 l 0 0 M 0 24 l 0 0 M 24 0 l 0 0
+
+$bog_gipergram_row $mol_link
+	peer \
+	sub /
+		<= Avatar $mol_avatar
+			id <= peer
+		<= Info $mol_view
+			sub /
+				<= Head $mol_view
+					sub /
+						<= Title $mol_view
+							sub /
+								<= title \
+						<= Time $mol_view
+							sub /
+								<= time \
+				<= Foot $mol_view
+					sub <= foot /
+						<= Preview $mol_view
+							sub /
+								<= preview \
+						<= Unread $mol_view
+							sub /
+								<= unread_text \
+	unread 0
+
+$mol_list $mol_view
+	render_visible_only true
+	render_over 0.1
+	sub <= rows /$mol_view
+		<= Gap_before $mol_view style * paddingTop <= gap_before 0
+		<= Empty $mol_view
+		<= Gap_after $mol_view style * paddingTop <= gap_after 0
+	item_height_min* 1
+	item_width_min* 1
+	view_window_shift? 0
+	view_window /
+		0
+		0
+
+$mol_icon_close $mol_icon path \M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z
+
+$mol_page $mol_view
+	dom_name \article
+	attr *
+		^
+		tabIndex <= tabindex -1
+	sub /
+		<= Head $mol_view
+			minimal_height 64
+			dom_name \header
+			sub <= head /
+				<= Title $mol_view
+					dom_name \h1
+					sub <= title_content /
+						<= Logo null
+						<= title
+				<= Tools $mol_view
+					sub <= tools /$mol_view_content
+		<= Body $mol_scroll
+			scroll_top? => body_scroll_top?
+			sub <= body_content /
+				<= Body_content $mol_view
+					sub <= body /$mol_view
+		<= Foot $mol_view
+			dom_name \footer
+			sub <= foot /$mol_view
+
+$mol_paragraph $mol_view
+	line_height 24
+	letter_width 7
+	width_limit +Infinity
+	row_width 0
+	sub / <= title
+
+$mol_hotkey2 $mol_plugin
+	event *
+		^
+		keydown? <=> keydown? null
+	action *
+
+$mol_hotkey $mol_hotkey2
+	key *
+	mod_ctrl false
+	mod_alt false
+	mod_shift false
+
+$mol_string $mol_view
+	dom_name \input
+	enabled true
+	minimal_height 40
+	autocomplete false
+	selection? /number
+		0
+		0
+	auto /
+		<= selection_watcher null
+		<= error_report null
+	field *
+		^
+		disabled <= disabled false
+		value <= value_changed? <=> value? \
+		placeholder <= hint_visible <= hint \
+		spellcheck <= spellcheck true
+		autocomplete <= autocomplete_native \
+		selectionEnd <= selection_end 0
+		selectionStart <= selection_start 0
+		inputMode <= keyboard \text
+		enterkeyhint <= enter \go
+	attr *
+		^
+		maxlength <= length_max +Infinity
+		type <= type? \text
+	event *
+		^
+		input? <=> event_change? null
+	plugins /
+		<= Submit $mol_hotkey
+			mod_ctrl <= submit_with_ctrl false
+			key * enter? <=> submit? null
+
+$mol_button_major $mol_button_minor
+	theme \$mol_theme_base
+
+$bog_gipergram_login $mol_page
+	tg $bog_gipergram_tg
+	title @ \Вход
+	body /
+		<= Form $mol_list
+			rows <= form_rows /
+				<= Unconfigured $mol_paragraph
+					title @ \Впиши api_id и api_hash с my.telegram.org в bog/gipergram/tg/tg.ts
+				<= Phone $mol_string
+					hint @ \Телефон, +79991234567
+					type \tel
+					value? <=> phone? \
+				<= Code_send $mol_button_major
+					title @ \Получить код
+					click? <=> code_send? null
+				<= Code $mol_string
+					hint @ \Код из Telegram
+					value? <=> code? \
+				<= Code_check $mol_button_major
+					title @ \Войти
+					click? <=> code_check? null
+				<= Password $mol_string
+					hint @ \Облачный пароль
+					type \password
+					value? <=> password? \
+				<= Password_check $mol_button_major
+					title @ \Войти
+					click? <=> password_check? null
+
+$mol_icon_arrow_up $mol_icon path \M13,20H11V8L5.5,13.5L4.08,12.08L12,4.16L19.92,12.08L18.5,13.5L13,8V20Z
+
+$mol_icon_view_split_vertical $mol_icon path \M13,5H21V19H13V5M3,5H11V7H3V5M3,11V9H11V11H3M3,19V17H11V19H3M3,15V13H11V15H3Z
+
+$mol_check $mol_button_minor
+	attr *
+		^
+		mol_check_checked <= checked? false
+		aria-checked <= aria_checked \false
+		role <= aria_role \checkbox
+	sub /$mol_view_content
+		<= Icon null
+		<= label /
+			<= Title $mol_view
+				sub /
+					<= title \
+
+$mol_check_icon $mol_check
+
+$bog_gipergram_message $mol_view
+	attr *
+		^
+		bog_gipergram_message_out <= out false
+	sub /
+		<= Bubble $mol_view
+			sub <= bubble_content /
+				<= Author $mol_view
+					sub /
+						<= author \
+				<= Text $mol_view
+					sub /
+						<= text \
+				<= Time $mol_view
+					sub /
+						<= time \
+
+$mol_icon_check $mol_icon path \M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z
+
+$mol_icon_check_all $mol_icon path \M0.41,13.41L6,19L7.41,17.58L1.83,12M22.24,5.58L11.66,16.17L7.5,12L6.07,13.41L11.66,19L23.66,7M18,7L16.59,5.58L10.24,11.93L11.66,13.34L18,7Z
+
+$mol_icon_undo $mol_icon path \M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z
+
+$mol_stack $mol_view
+
+$mol_dimmer $mol_paragraph
+	haystack \
+	needle \
+	sub <= parts /$mol_view_content
+	Low* $mol_paragraph
+		sub /
+			<= string* \
+	High* $mol_paragraph
+		sub /
+			<= string* \
+
+$mol_text_code_token $mol_dimmer
+	attr *
+		^
+		mol_text_code_token_type <= type \
+
+$mol_text_code_token_link $mol_text_code_token
+	dom_name \a
+	type \code-link
+	attr *
+		^
+		href <= uri \
+		target \_blank
+
+$mol_text_code_line $mol_paragraph
+	text \
+	minimal_height 24
+	numb_showed true
+	syntax null
+	uri_resolve* \
+	Numb $mol_view
+		sub /
+			<= numb 0
+	Token* $mol_text_code_token
+		type <= token_type* \
+		haystack <= token_text* \
+		needle <= highlight \
+	Token_link* $mol_text_code_token_link
+		haystack <= token_text* \
+		needle <= highlight \
+		uri <= token_uri* \
+	find_pos* null
+
+$mol_icon_clipboard $mol_icon path \M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3
+
+$mol_icon_clipboard_outline $mol_icon path \M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3M7,7H17V5H19V19H5V5H7V7Z
+
+$mol_button_copy $mol_button_minor
+	blobs /$mol_blob
+		<= text_blob? $mol_blob /
+			/BlobPart <= text <= title
+			* type \text/plain
+		<= html_blob? $mol_blob /
+			/BlobPart <= html \
+			* type \text/html
+	data *
+	sub /
+		<= Icon $mol_icon_clipboard_outline
+		<= title \
+
+$mol_text_code $mol_stack
+	attr *
+		^
+		mol_text_code_sidebar_showed <= sidebar_showed false
+	text \
+	text_lines /string
+	find_pos* null
+	uri_base \
+	row_themes /string
+	sub /
+		<= Rows $mol_list
+			render_visible_only <= render_visible_only false
+			rows <= rows /
+				<= Row*0 $mol_text_code_line
+					numb_showed <= sidebar_showed
+					numb <= row_numb* 0
+					theme <= row_theme* \
+					text <= row_text* \
+					syntax <= syntax null
+					uri_resolve* <= uri_resolve* \
+					highlight <= highlight \
+		<= Copy $mol_button_copy
+			hint @ \Copy whole code
+			text <= text_export \
+
+$mol_textarea $mol_stack
+	attr *
+		^
+		mol_textarea_clickable <= clickable? false
+		mol_textarea_sidebar_showed <= sidebar_showed false
+	event *
+		keydown? <=> press? null
+		pointermove? <=> hover? null
+	sub /
+		<= Edit $mol_textarea_edit
+			value? <=> value? \
+			hint <= hint \ 
+			enabled <= enabled true
+			spellcheck <= spellcheck true
+			length_max <= length_max +Infinity
+			selection? <=> selection? /number
+			bring => bring
+			submit? <=> submit? null
+			submit_with_ctrl <= submit_with_ctrl true
+		<= View $mol_text_code
+			text <= value
+			render_visible_only false
+			row_numb* <= row_numb* 0
+			sidebar_showed <= sidebar_showed
+			highlight <= highlight \
+			syntax <= syntax $mol_syntax2
+	symbols_alt *string
+		comma \<
+		period \>
+		dash \−
+		equals \≈
+		graveAccent \́
+		forwardSlash \÷
+		E \€
+		V \✔
+		X \×
+		C \©
+		P \§
+		H \₽
+		key0 \°
+		key8 \•
+		key2 \@
+		key3 \#
+		key4 \$
+		key6 \^
+		key7 \&
+		bracketOpen \[
+		bracketClose \]
+		slashBack \|
+	symbols_alt_ctrl *string
+		space \ 
+	symbols_alt_shift *string
+		V \✅
+		X \❌
+		O \⭕
+		key1 \❗
+		key4 \💲
+		key7 \❓
+		comma \«
+		period \»
+		semicolon \“
+		quoteSingle \”
+		dash \—
+		equals \≠
+		graveAccent \̱
+		bracketOpen \{
+		bracketClose \}
+
+$mol_textarea_edit $mol_string
+	dom_name \textarea
+	enter \enter
+	field *
+		^
+		scrollTop 0
+
+$mol_icon_send $mol_icon path \M2,21L23,12L2,3V10L17,12L2,14V21Z
+
+$bog_gipergram_chat $mol_page
+	peer \
+	tg $bog_gipergram_tg
+	store $bog_gipergram_store
+	title <= chat_title \
+	tools /
+		<= Bump $mol_button_minor
+			hint @ \Поднять вкладку наверх
+			click? <=> bump? null
+			sub /
+				<= Bump_icon $mol_icon_arrow_up
+		<= Split $mol_check_icon
+			hint @ \Держать открытым рядом
+			checked? <=> split? false
+			Icon <= Split_icon $mol_icon_view_split_vertical
+		<= Close $mol_button_minor
+			hint @ \Закрыть вкладку
+			click? <=> close? null
+			sub /
+				<= Close_icon $mol_icon_close
+	body /
+		<= Messages $mol_list
+			rows <= message_rows /
+				<= Unread $mol_view
+					sub /
+						<= unread_title @ \Новые с прошлого раза
+				<= Message* $bog_gipergram_message
+					text <= message_text* \
+					author <= message_author* \
+					time <= message_time* \
+					out <= message_out* false
+	unread_count 0
+	unread_count_label @ \непрочитано
+	foot /
+		<= Anchor_bar $mol_view
+			sub <= anchor_bar /
+				<= Unread_count $mol_view
+					sub /
+						<= unread_count_text \
+				<= Read $mol_button_minor
+					hint @ \Отметить всё прочитанным
+					click? <=> read? null
+					sub /
+						<= Read_icon $mol_icon_check_all
+				<= Restore $mol_button_minor
+					hint @ \Вернуть прошлую отметку
+					click? <=> restore? null
+					sub /
+						<= Restore_icon $mol_icon_undo
+		<= Compose $mol_view
+			sub /
+				<= Draft $mol_textarea
+					hint @ \Сообщение, Ctrl+Enter
+					value? <=> draft? \
+					submit? <=> send? null
+				<= Send $mol_button_major
+					hint @ \Отправить
+					click? <=> send? null
+					sub /
+						<= Send_icon $mol_icon_send
+
+$bog_gipergram_app $mol_book2
+	plugins /
+		<= Theme $bog_theme_auto
+	tg $bog_gipergram_tg
+		message_out? <=> message_out? null
+	store $bog_gipergram_store
+	Login $bog_gipergram_login
+		tg <= tg
+	Menu $mol_page
+		title \Gipergram
+		tools /
+			<= Mine_link $mol_link
+				hint @ \Мои сообщения
+				arg *
+					mine \
+				sub /
+					<= Mine_icon $mol_icon_comment_account
+			<= Logout $mol_button_minor
+				hint @ \Выйти
+				click? <=> logout? null
+				sub /
+					<= Logout_icon $mol_icon_logout
+		body /
+			<= Tabs_title $mol_view
+				sub /
+					<= tabs_title @ \Вкладки
+			<= Tabs $mol_list
+				rows <= tab_rows /
+					<= Tab* $bog_gipergram_row
+						peer <= row_peer* \
+						title <= row_title* \
+						preview <= row_preview* \
+						time <= row_time* \
+						unread <= tab_unread* 0
+						arg <= row_arg* *
+						click? <=> chat_open*? null
+			<= Chats_title $mol_view
+				sub /
+					<= chats_title @ \Все чаты
+			<= Chats $mol_list
+				rows <= chat_rows /
+					<= Chat_row* $bog_gipergram_row
+						peer <= row_peer* \
+						title <= row_title* \
+						preview <= row_preview* \
+						time <= row_time* \
+						unread <= chat_unread* 0
+						arg <= row_arg* *
+						click? <=> chat_open*? null
+	Chat* $bog_gipergram_chat
+		peer <= chat_peer* \
+		tg <= tg
+		store <= store
+	Mine $mol_page
+		title @ \Мои сообщения
+		tools /
+			<= Mine_close $mol_link
+				arg *
+					mine null
+				sub /
+					<= Mine_close_icon $mol_icon_close
+		body /
+			<= Mine_list $mol_list
+				rows <= mine_rows /
+					<= Mine_row* $bog_gipergram_row
+						peer <= mine_peer* \
+						title <= mine_title* \
+						preview <= mine_text* \
+						time <= mine_time* \
+						arg <= mine_arg* *
+						click? <=> chat_open*? null
