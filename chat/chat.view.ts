@@ -53,6 +53,90 @@ namespace $.$$ {
 			return this.message( id ).out
 		}
 
+		message_media( id: number ) {
+			return this.message( id ).media
+		}
+
+		message_width( id: number ) {
+			return this.message( id ).width
+		}
+
+		message_height( id: number ) {
+			return this.message( id ).height
+		}
+
+		message_image_uri( id: number ) {
+			return this.tg().media_uri( [ this.peer(), id ] )
+		}
+
+		message_voice_uri( id: number ) {
+			return this.tg().media_uri( [ this.peer(), id ] )
+		}
+
+		compose() {
+			const recording = this.recorder().recording()
+			return [
+				... recording ? [ this.Recording(), this.Voice_cancel() ] : [ this.Attach(), this.Draft() ],
+				this.draft().trim() ? this.Send() : this.Voice(),
+			]
+		}
+
+		voice_content() {
+			return [ this.recorder().recording() ? this.Voice_stop_icon() : this.Voice_start_icon() ]
+		}
+
+		voice_hint() {
+			return this.recorder().recording() ? this.voice_hint_stop() : super.voice_hint()
+		}
+
+		@ $mol_action
+		photo_pick( files: readonly File[] ) {
+			const [ file ] = files
+			if( !file ) return []
+			const sent = this.tg().photo_send( this.peer(), file )
+			this.sent( sent.id )
+			return []
+		}
+
+		@ $mol_action
+		voice_toggle() {
+			const recorder = this.recorder()
+			if( !recorder.recording() ) return recorder.start()
+			$mol_wire_async( this ).voice_finish()
+		}
+
+		async voice_finish() {
+			const { file, duration } = await this.recorder().stop()
+			if( duration < 0.7 ) return
+			await $mol_wire_async( this ).voice_send( file, duration )
+		}
+
+		voice_send( file: File, duration: number ) {
+			const sent = this.tg().voice_send( this.peer(), file, duration )
+			this.sent( sent.id )
+		}
+
+		@ $mol_action
+		voice_cancel() {
+			this.recorder().cancel()
+		}
+
+		@ $mol_mem
+		voice_preload() {
+			try {
+				this.recorder().ready()
+				return true
+			} catch( error ) {
+				if( $mol_promise_like( error ) ) $mol_fail_hidden( error )
+				return false
+			}
+		}
+
+		auto() {
+			this.opened()
+			this.voice_preload()
+		}
+
 		@ $mol_mem
 		message_rows() {
 			const first = this.unread_first()
@@ -119,8 +203,12 @@ namespace $.$$ {
 			if( !text ) return
 			const sent = this.tg().send( this.peer(), text )
 			this.draft( '' )
-			this.store().anchor_move( this.peer(), this.anchor(), sent.id )
-			this.reveal( sent.id, 'end' )
+			this.sent( sent.id )
+		}
+
+		sent( id: number ) {
+			this.store().anchor_move( this.peer(), this.anchor(), id )
+			this.reveal( id, 'end' )
 		}
 
 		reveal( id: number, align: ScrollLogicalPosition ) {
@@ -140,10 +228,6 @@ namespace $.$$ {
 				else this.ensure_visible( this.Unread(), 'center' )
 			} )
 			return true
-		}
-
-		auto() {
-			this.opened()
 		}
 
 	}

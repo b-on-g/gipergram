@@ -127,7 +127,8 @@ namespace $.$$ {
 		}
 
 		mine_text( key: string ) {
-			return this.mine_item( key )?.text ?? ''
+			const item = this.mine_item( key )
+			return item ? this.tg().preview_of( item ) : ''
 		}
 
 		mine_time( key: string ) {

@@ -2,19 +2,21 @@ $bog_gipergram_chat $mol_page
 	peer \
 	tg $bog_gipergram_tg
 	store $bog_gipergram_store
+	recorder $bog_gipergram_voice
+	voice_hint_stop @ \Send the voice message
 	title <= chat_title \
 	tools /
 		<= Bump $mol_button_minor
-			hint @ \Поднять вкладку наверх
+			hint @ \Lift the tab to the top
 			click? <=> bump? null
 			sub /
 				<= Bump_icon $mol_icon_arrow_up
 		<= Split $mol_check_icon
-			hint @ \Держать открытым рядом
+			hint @ \Keep open side by side
 			checked? <=> split? false
 			Icon <= Split_icon $mol_icon_view_split_vertical
 		<= Close $mol_button_minor
-			hint @ \Закрыть вкладку
+			hint @ \Close the tab
 			click? <=> close? null
 			sub /
 				<= Close_icon $mol_icon_close
@@ -23,14 +25,19 @@ $bog_gipergram_chat $mol_page
 			rows <= message_rows /
 				<= Unread $mol_view
 					sub /
-						<= unread_title @ \Новые с прошлого раза
+						<= unread_title @ \New since last time
 				<= Message* $bog_gipergram_message
 					text <= message_text* \
 					author <= message_author* \
 					time <= message_time* \
 					out <= message_out* false
+					media <= message_media* \
+					image_uri <= message_image_uri* \
+					image_width <= message_width* 0
+					image_height <= message_height* 0
+					voice_uri <= message_voice_uri* \
 	unread_count 0
-	unread_count_label @ \непрочитано
+	unread_count_label @ \unread
 	foot /
 		<= Anchor_bar $mol_view
 			sub <= anchor_bar /
@@ -38,23 +45,43 @@ $bog_gipergram_chat $mol_page
 					sub /
 						<= unread_count_text \
 				<= Read $mol_button_minor
-					hint @ \Отметить всё прочитанным
+					hint @ \Mark all as read
 					click? <=> read? null
 					sub /
 						<= Read_icon $mol_icon_check_all
 				<= Restore $mol_button_minor
-					hint @ \Вернуть прошлую отметку
+					hint @ \Restore the previous mark
 					click? <=> restore? null
 					sub /
 						<= Restore_icon $mol_icon_undo
 		<= Compose $mol_view
-			sub /
+			sub <= compose /
+				<= Attach $mol_button_open
+					hint @ \Send a picture
+					accept \image/*
+					multiple false
+					files? <=> photo_pick? /File
+					Icon <= Attach_icon $mol_icon_paperclip
+				<= Recording $mol_view
+					sub /
+						<= recording_title @ \● Recording…
+				<= Voice_cancel $mol_button_minor
+					hint @ \Cancel recording
+					click? <=> voice_cancel? null
+					sub /
+						<= Voice_cancel_icon $mol_icon_close
+				<= Voice $mol_button_minor
+					hint <= voice_hint @ \Record a voice message
+					click? <=> voice_toggle? null
+					sub <= voice_content /
+						<= Voice_start_icon $mol_icon_microphone
+						<= Voice_stop_icon $mol_icon_send
 				<= Draft $mol_textarea
-					hint @ \Сообщение, Ctrl+Enter
+					hint @ \Message, Ctrl+Enter
 					value? <=> draft? \
 					submit? <=> send? null
 				<= Send $mol_button_major
-					hint @ \Отправить
+					hint @ \Send
 					click? <=> send? null
 					sub /
 						<= Send_icon $mol_icon_send

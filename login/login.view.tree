@@ -1,43 +1,43 @@
 $bog_gipergram_login $mol_page
 	tg $bog_gipergram_tg
-	title @ \Вход
+	title @ \Log in
 	mode? \qr
 	body /
 		<= Form $mol_list
 			rows <= form_rows /
 				<= Unconfigured $mol_paragraph
-					title @ \Впиши api_id и api_hash с my.telegram.org в bog/gipergram/tg/tg.ts
+					title @ \Put api_id and api_hash from my.telegram.org into bog/gipergram/tg/tg.ts
 				<= Qr $bog_qr
 					uri <= qr_uri \
 				<= Qr_wait $mol_paragraph
-					title @ \Готовлю QR-код…
+					title @ \Preparing the QR code…
 				<= Qr_hint $mol_paragraph
-					title @ \Открой Telegram на телефоне: Настройки → Устройства → Подключить устройство, и наведи камеру на код
+					title @ \Open Telegram on your phone: Settings → Devices → Link Desktop Device, and point the camera at the code
 				<= Phone_mode $mol_button_minor
-					title @ \Войти по номеру телефона
+					title @ \Log in by phone number
 					click? <=> phone_mode? null
 				<= Qr_mode $mol_button_minor
-					title @ \Войти по QR-коду
+					title @ \Log in by QR code
 					click? <=> qr_mode? null
 				<= Phone $mol_string
-					hint @ \Телефон, +79991234567
+					hint @ \Phone, +79991234567
 					type \tel
 					value? <=> phone? \
 				<= Code_send $mol_button_major
-					title @ \Получить код
+					title @ \Get the code
 					click? <=> code_send? null
 				<= Code $mol_string
-					hint @ \Код из Telegram
+					hint @ \Code from Telegram
 					value? <=> code? \
 				<= Code_check $mol_button_major
-					title @ \Войти
+					title @ \Log in
 					click? <=> code_check? null
 				<= Password $mol_string
-					hint @ \Облачный пароль
+					hint @ \Cloud password
 					type \password
 					value? <=> password? \
 				<= Password_check $mol_button_major
-					title @ \Войти
+					title @ \Log in
 					click? <=> password_check? null
 				<= Error $mol_paragraph
 					title <= error \

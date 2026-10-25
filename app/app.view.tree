@@ -11,26 +11,26 @@ $bog_gipergram_app $mol_book2
 		title \Gipergram
 		tools /
 			<= Mine_link $mol_link
-				hint @ \Мои сообщения
+				hint @ \My messages
 				arg *
 					mine \
 				sub /
 					<= Mine_icon $mol_icon_comment_account
 			<= Devices_link $mol_link
-				hint @ \Устройства и синхронизация
+				hint @ \Devices and sync
 				arg *
 					devices \
 				sub /
 					<= Devices_icon $mol_icon_cellphone_link
 			<= Logout $mol_button_minor
-				hint @ \Выйти
+				hint @ \Log out
 				click? <=> logout? null
 				sub /
 					<= Logout_icon $mol_icon_logout
 		body /
 			<= Tabs_title $mol_view
 				sub /
-					<= tabs_title @ \Вкладки
+					<= tabs_title @ \Tabs
 			<= Tabs $mol_list
 				rows <= tab_rows /
 					<= Tab* $bog_gipergram_row
@@ -43,7 +43,7 @@ $bog_gipergram_app $mol_book2
 						click? <=> chat_open*? null
 			<= Chats_title $mol_view
 				sub /
-					<= chats_title @ \Все чаты
+					<= chats_title @ \All chats
 			<= Chats $mol_list
 				rows <= chat_rows /
 					<= Chat_row* $bog_gipergram_row
@@ -59,7 +59,7 @@ $bog_gipergram_app $mol_book2
 		tg <= tg
 		store <= store
 	Mine $mol_page
-		title @ \Мои сообщения
+		title @ \My messages
 		tools /
 			<= Mine_close $mol_link
 				arg *

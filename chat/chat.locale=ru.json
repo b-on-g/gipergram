@@ -1,0 +1,16 @@
+{
+	"$bog_gipergram_chat_Bump_hint": "Поднять вкладку наверх",
+	"$bog_gipergram_chat_Split_hint": "Держать открытым рядом",
+	"$bog_gipergram_chat_Close_hint": "Закрыть вкладку",
+	"$bog_gipergram_chat_unread_title": "Новые с прошлого раза",
+	"$bog_gipergram_chat_Read_hint": "Отметить всё прочитанным",
+	"$bog_gipergram_chat_Restore_hint": "Вернуть прошлую отметку",
+	"$bog_gipergram_chat_Attach_hint": "Отправить картинку",
+	"$bog_gipergram_chat_recording_title": "● Запись…",
+	"$bog_gipergram_chat_Voice_cancel_hint": "Отменить запись",
+	"$bog_gipergram_chat_voice_hint": "Записать голосовое",
+	"$bog_gipergram_chat_Draft_hint": "Сообщение, Ctrl+Enter",
+	"$bog_gipergram_chat_Send_hint": "Отправить",
+	"$bog_gipergram_chat_voice_hint_stop": "Отправить голосовое",
+	"$bog_gipergram_chat_unread_count_label": "непрочитано"
+}

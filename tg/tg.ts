@@ -17,16 +17,20 @@ namespace $ {
 		date: number
 		out: boolean
 		author: string
+		media: '' | 'photo' | 'voice' | 'file'
+		width: number
+		height: number
+		duration: number
 	}
 
 	export class $bog_gipergram_tg extends $mol_object {
 
 		api_id() {
-			return 0
+			return 37757870
 		}
 
 		api_hash() {
-			return ''
+			return 'aa50a66c915b6fabcf868fdedb46a22b'
 		}
 
 		configured() {
@@ -34,7 +38,7 @@ namespace $ {
 		}
 
 		lib_uri() {
-			return 'https://esm.sh/telegram@2.26.22'
+			return new URL( 'bog/gipergram/gramjs/telegram.mjs', this.$.$mol_dom_context.document.baseURI ).href
 		}
 
 		lib() {
@@ -230,21 +234,48 @@ namespace $ {
 			return found?.inputEntity ?? id
 		}
 
+		media_of( message: any ): $bog_gipergram_tg_message[ 'media' ] {
+			if( !message?.media ) return ''
+			if( message.photo ) return 'photo'
+			if( message.voice ) return 'voice'
+			return 'file'
+		}
+
+		media_icon( media: $bog_gipergram_tg_message[ 'media' ] ) {
+			return { '': '', photo: '🖼', voice: '🎤', file: '📎' }[ media ]
+		}
+
 		text_of( message: any ): string {
 			if( !message ) return ''
-			if( message.message ) return message.message
-			if( message.media ) return '📎'
+			const icon = this.media_icon( this.media_of( message ) )
+			if( message.message ) return icon ? `${ icon } ${ message.message }` : message.message
+			if( icon ) return icon
 			if( message.action ) return '·'
 			return ''
 		}
 
-		message_of( message: any ): $bog_gipergram_tg_message {
+		preview_of( message: $bog_gipergram_tg_message ) {
+			const icon = this.media_icon( message.media )
+			if( !icon ) return message.text
+			return message.text ? `${ icon } ${ message.text }` : icon
+		}
+
+		raws = new Map< string, any >()
+
+		message_of( peer: string, message: any ): $bog_gipergram_tg_message {
+			this.raws.set( `${ peer }:${ message.id }`, message )
+			const size = message.photo?.sizes?.filter( ( size: any )=> size.w ).at( -1 )
+			const audio = message.voice?.attributes?.find( ( attr: any )=> attr.className === 'DocumentAttributeAudio' )
 			return {
 				id: message.id,
-				text: this.text_of( message ),
+				text: message.message ?? '',
 				date: message.date,
 				out: Boolean( message.out ),
 				author: this.name_of( message.sender ),
+				media: this.media_of( message ),
+				width: size?.w ?? 0,
+				height: size?.h ?? 0,
+				duration: audio?.duration ?? 0,
 			}
 		}
 
@@ -252,21 +283,64 @@ namespace $ {
 		messages( peer: string, next?: $bog_gipergram_tg_message[] ): $bog_gipergram_tg_message[] {
 			if( next ) return next
 			const list = $mol_wire_sync( this.client() ).getMessages( this.entity( peer ), { limit: 50 } ) as any[]
-			return list.map( message => this.message_of( message ) ).reverse()
+			return list.map( message => this.message_of( peer, message ) ).reverse()
+		}
+
+		raw( peer: string, id: number ) {
+			const cached = this.raws.get( `${ peer }:${ id }` )
+			if( cached ) return cached
+			const [ found ] = $mol_wire_sync( this.client() ).getMessages( this.entity( peer ), { ids: [ id ] } ) as any[]
+			if( found ) this.message_of( peer, found )
+			return found ?? null
 		}
 
 		@ $mol_mem_key
 		message_one( [ peer, id ]: [ string, number ] ): $bog_gipergram_tg_message | null {
 			const cached = $mol_wire_probe( ()=> this.messages( peer ) )?.find( message => message.id === id )
 			if( cached ) return cached
-			const [ found ] = $mol_wire_sync( this.client() ).getMessages( this.entity( peer ), { ids: [ id ] } ) as any[]
-			return found ? this.message_of( found ) : null
+			const found = this.raw( peer, id )
+			return found ? this.message_of( peer, found ) : null
+		}
+
+		mime_of( raw: any ) {
+			if( raw.photo ) return 'image/jpeg'
+			return raw.document?.mimeType ?? 'application/octet-stream'
+		}
+
+		@ $mol_mem_key
+		media_uri( [ peer, id ]: [ string, number ] ) {
+			const raw = this.raw( peer, id )
+			if( !raw ) return ''
+			const buffer = $mol_wire_sync( this.client() ).downloadMedia( raw, {} ) as Uint8Array< ArrayBuffer > | undefined
+			if( !buffer ) return ''
+			return URL.createObjectURL( new Blob( [ buffer ], { type: this.mime_of( raw ) } ) )
 		}
 
 		@ $mol_action
 		send( peer: string, text: string ) {
 			const sent = $mol_wire_sync( this.client() ).sendMessage( this.entity( peer ), { message: text } )
-			const message = this.message_of( sent )
+			const message = this.message_of( peer, sent )
+			this.message_add( peer, message )
+			return message
+		}
+
+		@ $mol_action
+		photo_send( peer: string, file: File ) {
+			const sent = $mol_wire_sync( this.client() ).sendFile( this.entity( peer ), { file } )
+			const message = this.message_of( peer, sent )
+			this.message_add( peer, message )
+			return message
+		}
+
+		@ $mol_action
+		voice_send( peer: string, file: File, duration: number ) {
+			const lib = this.lib()
+			const sent = $mol_wire_sync( this.client() ).sendFile( this.entity( peer ), {
+				file,
+				voiceNote: true,
+				attributes: [ new lib.Api.DocumentAttributeAudio( { voice: true, duration: Math.round( duration ) } ) ],
+			} )
+			const message = this.message_of( peer, sent )
 			this.message_add( peer, message )
 			return message
 		}
@@ -293,7 +367,7 @@ namespace $ {
 				{
 					... dialog,
 					top_id: message.id,
-					top_text: message.text,
+					top_text: this.preview_of( message ),
 					top_date: message.date,
 					top_out: message.out,
 					unread: message.out ? dialog.unread : dialog.unread + 1,
@@ -316,7 +390,7 @@ namespace $ {
 			const [ peer, id ] = found
 			const client = this.client_raw()
 			const [ message ] = await client.getMessages( this.entity( peer ), { ids: [ id ] } )
-			if( message ) this.message_add( peer, this.message_of( message ) )
+			if( message ) this.message_add( peer, this.message_of( peer, message ) )
 		}
 
 		@ $mol_mem

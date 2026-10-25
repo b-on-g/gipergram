@@ -1,0 +1,9 @@
+{
+	"$bog_gipergram_devices_Hint_title": "Вкладки, отметки непрочитанного и мои сообщения синкаются через Giper Baza. Чтобы они были общими, на другом устройстве отсканируй код или открой ссылку. Ссылка секретная, это ключ аккаунта.",
+	"$bog_gipergram_devices_Copy_title": "Скопировать ссылку",
+	"$bog_gipergram_devices_Input_hint": "Ссылка с другого устройства",
+	"$bog_gipergram_devices_Apply_title": "Применить",
+	"$bog_gipergram_devices_title": "Устройства",
+	"$bog_gipergram_devices_status_wrong": "Это не ссылка аккаунта",
+	"$bog_gipergram_devices_status_same": "Этот аккаунт уже здесь"
+}
