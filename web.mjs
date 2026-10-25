@@ -33559,6 +33559,8 @@ var $;
 (function ($) {
     var $$;
     (function ($$) {
+        $giper_baza_yard.masters_default.length = 0;
+        $giper_baza_yard.masters = () => ['https://cmyser-bg-pony.87.120.36.150.ip.giper.dev/'];
         class $bog_gipergram_app extends $.$bog_gipergram_app {
             chat_current() {
                 return this.$.$mol_state_arg.value('chat');
