@@ -6047,6 +6047,89 @@ var $;
 
 
 ;
+	($.$mol_icon_send) = class $mol_icon_send extends ($.$mol_icon) {
+		path(){
+			return "M2,21L23,12L2,3V10L17,12L2,14V21Z";
+		}
+	};
+
+
+;
+"use strict";
+
+
+;
+	($.$bog_favicon) = class $bog_favicon extends ($.$mol_plugin) {
+		Icon(){
+			const obj = new this.$.$mol_view();
+			return obj;
+		}
+	};
+	($mol_mem(($.$bog_favicon.prototype), "Icon"));
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        /** Плагин, который ставит favicon из переданного $mol_icon_* и подобных */
+        class $bog_favicon extends $.$bog_favicon {
+            // сюда передаем Icon <= icon $mol_icon_waze
+            Icon(next) {
+                if (next !== undefined)
+                    return next;
+                throw new Error('[bog_favicon] Icon is required: use `Icon <= icon $mol_icon_*` in view.tree');
+            }
+            favicon_data() {
+                const icon = this.Icon();
+                const node = icon.dom_tree();
+                if (!node.getAttribute('xmlns')) {
+                    node.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                }
+                const svg = node.outerHTML;
+                return 'data:image/svg+xml,' + encodeURIComponent(svg);
+            }
+            apply_favicon() {
+                const doc = $mol_dom_context.document;
+                if (!doc)
+                    return;
+                const href = this.favicon_data();
+                let link = doc.querySelector('link[rel="icon"]');
+                if (!link) {
+                    link = doc.createElement('link');
+                    link.rel = 'icon';
+                    doc.head.appendChild(link);
+                }
+                link.type = 'image/svg+xml';
+                if (link.href !== href)
+                    link.href = href;
+            }
+            auto() {
+                this.favicon_data();
+                this.apply_favicon();
+                return null;
+            }
+            sub() {
+                return [];
+            }
+        }
+        __decorate([
+            $mol_mem
+        ], $bog_favicon.prototype, "Icon", null);
+        __decorate([
+            $mol_mem
+        ], $bog_favicon.prototype, "favicon_data", null);
+        $$.$bog_favicon = $bog_favicon;
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+
+;
 	($.$mol_icon_comment) = class $mol_icon_comment extends ($.$mol_icon) {
 		path(){
 			return "M9,22A1,1 0 0,1 8,21V18H4A2,2 0 0,1 2,16V4C2,2.89 2.9,2 4,2H20A2,2 0 0,1 22,4V16A2,2 0 0,1 20,18H13.9L10.2,21.71C10,21.9 9.75,22 9.5,22V22H9Z";
@@ -19972,18 +20055,6 @@ var $;
 
 
 ;
-	($.$mol_icon_send) = class $mol_icon_send extends ($.$mol_icon) {
-		path(){
-			return "M2,21L23,12L2,3V10L17,12L2,14V21Z";
-		}
-	};
-
-
-;
-"use strict";
-
-
-;
 	($.$mol_stack) = class $mol_stack extends ($.$mol_view) {};
 
 
@@ -22112,6 +22183,15 @@ var $;
 			const obj = new this.$.$bog_theme_auto();
 			return obj;
 		}
+		Favicon_icon(){
+			const obj = new this.$.$mol_icon_send();
+			return obj;
+		}
+		Favicon(){
+			const obj = new this.$.$bog_favicon();
+			(obj.Icon) = () => ((this.Favicon_icon()));
+			return obj;
+		}
 		message_out(next){
 			if(next !== undefined) return next;
 			return null;
@@ -22279,7 +22359,7 @@ var $;
 			return obj;
 		}
 		plugins(){
-			return [(this.Theme())];
+			return [(this.Theme()), (this.Favicon())];
 		}
 		tg(){
 			const obj = new this.$.$bog_gipergram_tg();
@@ -22331,6 +22411,8 @@ var $;
 		}
 	};
 	($mol_mem(($.$bog_gipergram_app.prototype), "Theme"));
+	($mol_mem(($.$bog_gipergram_app.prototype), "Favicon_icon"));
+	($mol_mem(($.$bog_gipergram_app.prototype), "Favicon"));
 	($mol_mem(($.$bog_gipergram_app.prototype), "message_out"));
 	($mol_mem(($.$bog_gipergram_app.prototype), "Mine_icon"));
 	($mol_mem(($.$bog_gipergram_app.prototype), "Mine_link"));

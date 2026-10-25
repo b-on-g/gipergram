@@ -2024,6 +2024,35 @@ declare namespace $ {
 //# sourceMappingURL=icon.view.tree.d.ts.map
 declare namespace $ {
 
+	export class $mol_icon_send extends $mol_icon {
+		path( ): string
+	}
+	
+}
+
+//# sourceMappingURL=send.view.tree.d.ts.map
+declare namespace $ {
+
+	export class $bog_favicon extends $mol_plugin {
+		Icon( ): $mol_view
+	}
+	
+}
+
+//# sourceMappingURL=favicon.view.tree.d.ts.map
+declare namespace $.$$ {
+    /** Плагин, который ставит favicon из переданного $mol_icon_* и подобных */
+    class $bog_favicon extends $.$bog_favicon {
+        Icon(next?: $mol_view): $mol_view;
+        favicon_data(): string;
+        apply_favicon(): void;
+        auto(): any;
+        sub(): readonly [];
+    }
+}
+
+declare namespace $ {
+
 	export class $mol_icon_comment extends $mol_icon {
 		path( ): string
 	}
@@ -43670,15 +43699,6 @@ declare namespace $ {
 
 //# sourceMappingURL=microphone.view.tree.d.ts.map
 declare namespace $ {
-
-	export class $mol_icon_send extends $mol_icon {
-		path( ): string
-	}
-	
-}
-
-//# sourceMappingURL=send.view.tree.d.ts.map
-declare namespace $ {
     type $bog_gipergram_voice_session = {
         recorder: any;
         started: number;
@@ -44064,249 +44084,256 @@ declare namespace $.$$ {
 
 declare namespace $ {
 
-	type $mol_link__hint_bog_gipergram_app_1 = $mol_type_enforce<
+	type $bog_favicon__Icon_bog_gipergram_app_1 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_app['Favicon_icon'] >
+		,
+		ReturnType< $bog_favicon['Icon'] >
+	>
+	type $mol_link__hint_bog_gipergram_app_2 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_link['hint'] >
 	>
-	type $mol_link__arg_bog_gipergram_app_2 = $mol_type_enforce<
+	type $mol_link__arg_bog_gipergram_app_3 = $mol_type_enforce<
 		({ 
 			'mine': string,
 		}) 
 		,
 		ReturnType< $mol_link['arg'] >
 	>
-	type $mol_link__sub_bog_gipergram_app_3 = $mol_type_enforce<
+	type $mol_link__sub_bog_gipergram_app_4 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_link['sub'] >
 	>
-	type $mol_link__hint_bog_gipergram_app_4 = $mol_type_enforce<
+	type $mol_link__hint_bog_gipergram_app_5 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_link['hint'] >
 	>
-	type $mol_link__arg_bog_gipergram_app_5 = $mol_type_enforce<
+	type $mol_link__arg_bog_gipergram_app_6 = $mol_type_enforce<
 		({ 
 			'devices': string,
 		}) 
 		,
 		ReturnType< $mol_link['arg'] >
 	>
-	type $mol_link__sub_bog_gipergram_app_6 = $mol_type_enforce<
+	type $mol_link__sub_bog_gipergram_app_7 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_link['sub'] >
 	>
-	type $mol_button_minor__hint_bog_gipergram_app_7 = $mol_type_enforce<
+	type $mol_button_minor__hint_bog_gipergram_app_8 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_button_minor['hint'] >
 	>
-	type $mol_button_minor__click_bog_gipergram_app_8 = $mol_type_enforce<
+	type $mol_button_minor__click_bog_gipergram_app_9 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['logout'] >
 		,
 		ReturnType< $mol_button_minor['click'] >
 	>
-	type $mol_button_minor__sub_bog_gipergram_app_9 = $mol_type_enforce<
+	type $mol_button_minor__sub_bog_gipergram_app_10 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_button_minor['sub'] >
 	>
-	type $mol_view__sub_bog_gipergram_app_10 = $mol_type_enforce<
+	type $mol_view__sub_bog_gipergram_app_11 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_view['sub'] >
 	>
-	type $bog_gipergram_row__peer_bog_gipergram_app_11 = $mol_type_enforce<
+	type $bog_gipergram_row__peer_bog_gipergram_app_12 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['row_peer'] >
 		,
 		ReturnType< $bog_gipergram_row['peer'] >
 	>
-	type $bog_gipergram_row__title_bog_gipergram_app_12 = $mol_type_enforce<
+	type $bog_gipergram_row__title_bog_gipergram_app_13 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['row_title'] >
 		,
 		ReturnType< $bog_gipergram_row['title'] >
 	>
-	type $bog_gipergram_row__preview_bog_gipergram_app_13 = $mol_type_enforce<
+	type $bog_gipergram_row__preview_bog_gipergram_app_14 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['row_preview'] >
 		,
 		ReturnType< $bog_gipergram_row['preview'] >
 	>
-	type $bog_gipergram_row__time_bog_gipergram_app_14 = $mol_type_enforce<
+	type $bog_gipergram_row__time_bog_gipergram_app_15 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['row_time'] >
 		,
 		ReturnType< $bog_gipergram_row['time'] >
 	>
-	type $bog_gipergram_row__unread_bog_gipergram_app_15 = $mol_type_enforce<
+	type $bog_gipergram_row__unread_bog_gipergram_app_16 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['tab_unread'] >
 		,
 		ReturnType< $bog_gipergram_row['unread'] >
 	>
-	type $bog_gipergram_row__arg_bog_gipergram_app_16 = $mol_type_enforce<
+	type $bog_gipergram_row__arg_bog_gipergram_app_17 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['row_arg'] >
 		,
 		ReturnType< $bog_gipergram_row['arg'] >
 	>
-	type $bog_gipergram_row__click_bog_gipergram_app_17 = $mol_type_enforce<
+	type $bog_gipergram_row__click_bog_gipergram_app_18 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['chat_open'] >
 		,
 		ReturnType< $bog_gipergram_row['click'] >
 	>
-	type $mol_list__rows_bog_gipergram_app_18 = $mol_type_enforce<
+	type $mol_list__rows_bog_gipergram_app_19 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['tab_rows'] >
 		,
 		ReturnType< $mol_list['rows'] >
 	>
-	type $mol_view__sub_bog_gipergram_app_19 = $mol_type_enforce<
+	type $mol_view__sub_bog_gipergram_app_20 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_view['sub'] >
 	>
-	type $bog_gipergram_row__peer_bog_gipergram_app_20 = $mol_type_enforce<
+	type $bog_gipergram_row__peer_bog_gipergram_app_21 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['row_peer'] >
 		,
 		ReturnType< $bog_gipergram_row['peer'] >
 	>
-	type $bog_gipergram_row__title_bog_gipergram_app_21 = $mol_type_enforce<
+	type $bog_gipergram_row__title_bog_gipergram_app_22 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['row_title'] >
 		,
 		ReturnType< $bog_gipergram_row['title'] >
 	>
-	type $bog_gipergram_row__preview_bog_gipergram_app_22 = $mol_type_enforce<
+	type $bog_gipergram_row__preview_bog_gipergram_app_23 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['row_preview'] >
 		,
 		ReturnType< $bog_gipergram_row['preview'] >
 	>
-	type $bog_gipergram_row__time_bog_gipergram_app_23 = $mol_type_enforce<
+	type $bog_gipergram_row__time_bog_gipergram_app_24 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['row_time'] >
 		,
 		ReturnType< $bog_gipergram_row['time'] >
 	>
-	type $bog_gipergram_row__unread_bog_gipergram_app_24 = $mol_type_enforce<
+	type $bog_gipergram_row__unread_bog_gipergram_app_25 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['chat_unread'] >
 		,
 		ReturnType< $bog_gipergram_row['unread'] >
 	>
-	type $bog_gipergram_row__arg_bog_gipergram_app_25 = $mol_type_enforce<
+	type $bog_gipergram_row__arg_bog_gipergram_app_26 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['row_arg'] >
 		,
 		ReturnType< $bog_gipergram_row['arg'] >
 	>
-	type $bog_gipergram_row__click_bog_gipergram_app_26 = $mol_type_enforce<
+	type $bog_gipergram_row__click_bog_gipergram_app_27 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['chat_open'] >
 		,
 		ReturnType< $bog_gipergram_row['click'] >
 	>
-	type $mol_list__rows_bog_gipergram_app_27 = $mol_type_enforce<
+	type $mol_list__rows_bog_gipergram_app_28 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['chat_rows'] >
 		,
 		ReturnType< $mol_list['rows'] >
 	>
-	type $mol_link__arg_bog_gipergram_app_28 = $mol_type_enforce<
+	type $mol_link__arg_bog_gipergram_app_29 = $mol_type_enforce<
 		({ 
 			'mine': any,
 		}) 
 		,
 		ReturnType< $mol_link['arg'] >
 	>
-	type $mol_link__sub_bog_gipergram_app_29 = $mol_type_enforce<
+	type $mol_link__sub_bog_gipergram_app_30 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_link['sub'] >
 	>
-	type $bog_gipergram_row__peer_bog_gipergram_app_30 = $mol_type_enforce<
+	type $bog_gipergram_row__peer_bog_gipergram_app_31 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['mine_peer'] >
 		,
 		ReturnType< $bog_gipergram_row['peer'] >
 	>
-	type $bog_gipergram_row__title_bog_gipergram_app_31 = $mol_type_enforce<
+	type $bog_gipergram_row__title_bog_gipergram_app_32 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['mine_title'] >
 		,
 		ReturnType< $bog_gipergram_row['title'] >
 	>
-	type $bog_gipergram_row__preview_bog_gipergram_app_32 = $mol_type_enforce<
+	type $bog_gipergram_row__preview_bog_gipergram_app_33 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['mine_text'] >
 		,
 		ReturnType< $bog_gipergram_row['preview'] >
 	>
-	type $bog_gipergram_row__time_bog_gipergram_app_33 = $mol_type_enforce<
+	type $bog_gipergram_row__time_bog_gipergram_app_34 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['mine_time'] >
 		,
 		ReturnType< $bog_gipergram_row['time'] >
 	>
-	type $bog_gipergram_row__arg_bog_gipergram_app_34 = $mol_type_enforce<
+	type $bog_gipergram_row__arg_bog_gipergram_app_35 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['mine_arg'] >
 		,
 		ReturnType< $bog_gipergram_row['arg'] >
 	>
-	type $bog_gipergram_row__click_bog_gipergram_app_35 = $mol_type_enforce<
+	type $bog_gipergram_row__click_bog_gipergram_app_36 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['chat_open'] >
 		,
 		ReturnType< $bog_gipergram_row['click'] >
 	>
-	type $mol_list__rows_bog_gipergram_app_36 = $mol_type_enforce<
+	type $mol_list__rows_bog_gipergram_app_37 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['mine_rows'] >
 		,
 		ReturnType< $mol_list['rows'] >
 	>
-	type $bog_gipergram_tg__message_out_bog_gipergram_app_37 = $mol_type_enforce<
+	type $bog_gipergram_tg__message_out_bog_gipergram_app_38 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['message_out'] >
 		,
 		ReturnType< $bog_gipergram_tg['message_out'] >
 	>
-	type $bog_gipergram_login__tg_bog_gipergram_app_38 = $mol_type_enforce<
+	type $bog_gipergram_login__tg_bog_gipergram_app_39 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['tg'] >
 		,
 		ReturnType< $bog_gipergram_login['tg'] >
 	>
-	type $mol_page__title_bog_gipergram_app_39 = $mol_type_enforce<
+	type $mol_page__title_bog_gipergram_app_40 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_page['title'] >
 	>
-	type $mol_page__tools_bog_gipergram_app_40 = $mol_type_enforce<
+	type $mol_page__tools_bog_gipergram_app_41 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_page['tools'] >
 	>
-	type $mol_page__body_bog_gipergram_app_41 = $mol_type_enforce<
+	type $mol_page__body_bog_gipergram_app_42 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_page['body'] >
 	>
-	type $bog_gipergram_chat__peer_bog_gipergram_app_42 = $mol_type_enforce<
+	type $bog_gipergram_chat__peer_bog_gipergram_app_43 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['chat_peer'] >
 		,
 		ReturnType< $bog_gipergram_chat['peer'] >
 	>
-	type $bog_gipergram_chat__tg_bog_gipergram_app_43 = $mol_type_enforce<
+	type $bog_gipergram_chat__tg_bog_gipergram_app_44 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['tg'] >
 		,
 		ReturnType< $bog_gipergram_chat['tg'] >
 	>
-	type $bog_gipergram_chat__store_bog_gipergram_app_44 = $mol_type_enforce<
+	type $bog_gipergram_chat__store_bog_gipergram_app_45 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_app['store'] >
 		,
 		ReturnType< $bog_gipergram_chat['store'] >
 	>
-	type $mol_page__title_bog_gipergram_app_45 = $mol_type_enforce<
+	type $mol_page__title_bog_gipergram_app_46 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_page['title'] >
 	>
-	type $mol_page__tools_bog_gipergram_app_46 = $mol_type_enforce<
+	type $mol_page__tools_bog_gipergram_app_47 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_page['tools'] >
 	>
-	type $mol_page__body_bog_gipergram_app_47 = $mol_type_enforce<
+	type $mol_page__body_bog_gipergram_app_48 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_page['body'] >
 	>
 	export class $bog_gipergram_app extends $mol_book2 {
 		Theme( ): $bog_theme_auto
+		Favicon_icon( ): $mol_icon_send
+		Favicon( ): $bog_favicon
 		message_out( next?: any ): any
 		Mine_icon( ): $mol_icon_comment_account
 		Mine_link( ): $mol_link
