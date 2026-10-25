@@ -7195,16 +7195,16 @@ var $;
 (function ($) {
     class $bog_gipergram_tg extends $mol_object {
         api_id() {
-            return 0;
+            return 37757870;
         }
         api_hash() {
-            return '';
+            return 'aa50a66c915b6fabcf868fdedb46a22b';
         }
         configured() {
             return this.api_id() > 0 && this.api_hash().length > 0;
         }
         lib_uri() {
-            return 'https://esm.sh/telegram@2.26.22';
+            return new URL('bog/gipergram/gramjs/telegram.mjs', this.$.$mol_dom_context.document.baseURI).href;
         }
         lib() {
             return this.$.$mol_import.module(this.lib_uri());
@@ -7362,42 +7362,109 @@ var $;
             const found = this.dialogs_raw().find(dialog => String(dialog.id) === id);
             return found?.inputEntity ?? id;
         }
+        media_of(message) {
+            if (!message?.media)
+                return '';
+            if (message.photo)
+                return 'photo';
+            if (message.voice)
+                return 'voice';
+            return 'file';
+        }
+        media_icon(media) {
+            return { '': '', photo: '🖼', voice: '🎤', file: '📎' }[media];
+        }
         text_of(message) {
             if (!message)
                 return '';
+            const icon = this.media_icon(this.media_of(message));
             if (message.message)
-                return message.message;
-            if (message.media)
-                return '📎';
+                return icon ? `${icon} ${message.message}` : message.message;
+            if (icon)
+                return icon;
             if (message.action)
                 return '·';
             return '';
         }
-        message_of(message) {
+        preview_of(message) {
+            const icon = this.media_icon(message.media);
+            if (!icon)
+                return message.text;
+            return message.text ? `${icon} ${message.text}` : icon;
+        }
+        raws = new Map();
+        message_of(peer, message) {
+            this.raws.set(`${peer}:${message.id}`, message);
+            const size = message.photo?.sizes?.filter((size) => size.w).at(-1);
+            const audio = message.voice?.attributes?.find((attr) => attr.className === 'DocumentAttributeAudio');
             return {
                 id: message.id,
-                text: this.text_of(message),
+                text: message.message ?? '',
                 date: message.date,
                 out: Boolean(message.out),
                 author: this.name_of(message.sender),
+                media: this.media_of(message),
+                width: size?.w ?? 0,
+                height: size?.h ?? 0,
+                duration: audio?.duration ?? 0,
             };
         }
         messages(peer, next) {
             if (next)
                 return next;
             const list = $mol_wire_sync(this.client()).getMessages(this.entity(peer), { limit: 50 });
-            return list.map(message => this.message_of(message)).reverse();
+            return list.map(message => this.message_of(peer, message)).reverse();
+        }
+        raw(peer, id) {
+            const cached = this.raws.get(`${peer}:${id}`);
+            if (cached)
+                return cached;
+            const [found] = $mol_wire_sync(this.client()).getMessages(this.entity(peer), { ids: [id] });
+            if (found)
+                this.message_of(peer, found);
+            return found ?? null;
         }
         message_one([peer, id]) {
             const cached = $mol_wire_probe(() => this.messages(peer))?.find(message => message.id === id);
             if (cached)
                 return cached;
-            const [found] = $mol_wire_sync(this.client()).getMessages(this.entity(peer), { ids: [id] });
-            return found ? this.message_of(found) : null;
+            const found = this.raw(peer, id);
+            return found ? this.message_of(peer, found) : null;
+        }
+        mime_of(raw) {
+            if (raw.photo)
+                return 'image/jpeg';
+            return raw.document?.mimeType ?? 'application/octet-stream';
+        }
+        media_uri([peer, id]) {
+            const raw = this.raw(peer, id);
+            if (!raw)
+                return '';
+            const buffer = $mol_wire_sync(this.client()).downloadMedia(raw, {});
+            if (!buffer)
+                return '';
+            return URL.createObjectURL(new Blob([buffer], { type: this.mime_of(raw) }));
         }
         send(peer, text) {
             const sent = $mol_wire_sync(this.client()).sendMessage(this.entity(peer), { message: text });
-            const message = this.message_of(sent);
+            const message = this.message_of(peer, sent);
+            this.message_add(peer, message);
+            return message;
+        }
+        photo_send(peer, file) {
+            const sent = $mol_wire_sync(this.client()).sendFile(this.entity(peer), { file });
+            const message = this.message_of(peer, sent);
+            this.message_add(peer, message);
+            return message;
+        }
+        voice_send(peer, file, duration) {
+            const lib = this.lib();
+            const sent = $mol_wire_sync(this.client()).sendFile(this.entity(peer), {
+                file,
+                voiceNote: true,
+                attributes: [new lib.Api.DocumentAttributeAudio({ voice: true, duration: Math.round(duration) })],
+            });
+            const message = this.message_of(peer, sent);
             this.message_add(peer, message);
             return message;
         }
@@ -7422,7 +7489,7 @@ var $;
                 {
                     ...dialog,
                     top_id: message.id,
-                    top_text: message.text,
+                    top_text: this.preview_of(message),
                     top_date: message.date,
                     top_out: message.out,
                     unread: message.out ? dialog.unread : dialog.unread + 1,
@@ -7448,7 +7515,7 @@ var $;
             const client = this.client_raw();
             const [message] = await client.getMessages(this.entity(peer), { ids: [id] });
             if (message)
-                this.message_add(peer, this.message_of(message));
+                this.message_add(peer, this.message_of(peer, message));
         }
         updates() {
             const client = this.client();
@@ -7511,8 +7578,17 @@ var $;
         $mol_mem_key
     ], $bog_gipergram_tg.prototype, "message_one", null);
     __decorate([
+        $mol_mem_key
+    ], $bog_gipergram_tg.prototype, "media_uri", null);
+    __decorate([
         $mol_action
     ], $bog_gipergram_tg.prototype, "send", null);
+    __decorate([
+        $mol_action
+    ], $bog_gipergram_tg.prototype, "photo_send", null);
+    __decorate([
+        $mol_action
+    ], $bog_gipergram_tg.prototype, "voice_send", null);
     __decorate([
         $mol_action
     ], $bog_gipergram_tg.prototype, "read", null);
@@ -31815,20 +31891,55 @@ var $;
     var $$;
     (function ($$) {
         $mol_style_define($bog_gipergram_login, {
+            Body_content: {
+                flex: { direction: 'column', grow: 1 },
+                minHeight: '100%',
+                boxSizing: 'border-box',
+                justify: { content: 'center' },
+                align: { items: 'center' },
+                padding: $mol_gap.block,
+            },
             Form: {
                 gap: $mol_gap.block,
-                maxWidth: '24rem',
+                width: '22rem',
+                maxWidth: '100%',
                 padding: $mol_gap.block,
+                align: { items: 'stretch' },
+                border: { radius: $mol_gap.round },
+                background: { color: $mol_theme.card },
+                box: {
+                    shadow: [{
+                            x: 0,
+                            y: '0.5rem',
+                            blur: '2rem',
+                            spread: 0,
+                            color: $mol_theme.line,
+                        }],
+                },
             },
             Qr: {
                 width: '16rem',
                 height: '16rem',
                 align: { self: 'center' },
             },
-            Qr_hint: {
+            Qr_wait: {
+                justify: { content: 'center' },
+                minHeight: '16rem',
+                align: { items: 'center' },
                 color: $mol_theme.shade,
             },
+            Qr_hint: {
+                textAlign: 'center',
+                color: $mol_theme.shade,
+            },
+            Phone_mode: {
+                justify: { content: 'center' },
+            },
+            Qr_mode: {
+                justify: { content: 'center' },
+            },
             Error: {
+                textAlign: 'center',
                 color: $mol_theme.special,
             },
         });
@@ -32059,6 +32170,109 @@ var $;
 
 
 ;
+	($.$mol_image) = class $mol_image extends ($.$mol_view) {
+		uri(){
+			return "";
+		}
+		title(){
+			return "";
+		}
+		loading(){
+			return "lazy";
+		}
+		decoding(){
+			return "async";
+		}
+		cors(){
+			return null;
+		}
+		natural_width(){
+			return 0;
+		}
+		natural_height(){
+			return 0;
+		}
+		load(next){
+			if(next !== undefined) return next;
+			return null;
+		}
+		dom_name(){
+			return "img";
+		}
+		attr(){
+			return {
+				...(super.attr()), 
+				"src": (this.uri()), 
+				"title": (this.hint()), 
+				"alt": (this.title()), 
+				"loading": (this.loading()), 
+				"decoding": (this.decoding()), 
+				"crossOrigin": (this.cors()), 
+				"width": (this.natural_width()), 
+				"height": (this.natural_height())
+			};
+		}
+		event(){
+			return {"load": (next) => (this.load(next))};
+		}
+		minimal_width(){
+			return 16;
+		}
+		minimal_height(){
+			return 16;
+		}
+	};
+	($mol_mem(($.$mol_image.prototype), "load"));
+
+
+;
+"use strict";
+
+
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        class $mol_image extends $.$mol_image {
+            natural_width(next) {
+                const dom = this.dom_node();
+                if (dom.naturalWidth)
+                    return dom.naturalWidth;
+                const found = this.uri().match(/\bwidth=(\d+)/);
+                return found ? Number(found[1]) : null;
+            }
+            natural_height(next) {
+                const dom = this.dom_node();
+                if (dom.naturalHeight)
+                    return dom.naturalHeight;
+                const found = this.uri().match(/\bheight=(\d+)/);
+                return found ? Number(found[1]) : null;
+            }
+            load() {
+                this.natural_width(null);
+                this.natural_height(null);
+            }
+        }
+        __decorate([
+            $mol_mem
+        ], $mol_image.prototype, "natural_width", null);
+        __decorate([
+            $mol_mem
+        ], $mol_image.prototype, "natural_height", null);
+        $$.$mol_image = $mol_image;
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    $mol_style_attach("mol/image/image.view.css", "[mol_image] {\n\tborder-radius: var(--mol_gap_round);\n\toverflow: hidden;\n\tflex: 0 1 auto;\n\tmax-width: 100%;\n\tobject-fit: cover;\n\theight: fit-content;\n}\n");
+})($ || ($ = {}));
+
+;
 	($.$bog_gipergram_message) = class $bog_gipergram_message extends ($.$mol_view) {
 		out(){
 			return false;
@@ -32069,6 +32283,43 @@ var $;
 		Author(){
 			const obj = new this.$.$mol_view();
 			(obj.sub) = () => ([(this.author())]);
+			return obj;
+		}
+		image_uri(){
+			return "";
+		}
+		image_width(){
+			return 0;
+		}
+		image_height(){
+			return 0;
+		}
+		Image(){
+			const obj = new this.$.$mol_image();
+			(obj.uri) = () => ((this.image_uri()));
+			(obj.natural_width) = () => ((this.image_width()));
+			(obj.natural_height) = () => ((this.image_height()));
+			return obj;
+		}
+		voice_uri(){
+			return "";
+		}
+		Voice(){
+			const obj = new this.$.$mol_view();
+			(obj.dom_name) = () => ("audio");
+			(obj.attr) = () => ({
+				"controls": true, 
+				"preload": "metadata", 
+				"src": (this.voice_uri())
+			});
+			return obj;
+		}
+		file_title(){
+			return (this.$.$mol_locale.text("$bog_gipergram_message_file_title"));
+		}
+		File(){
+			const obj = new this.$.$mol_view();
+			(obj.sub) = () => ([(this.file_title())]);
 			return obj;
 		}
 		text(){
@@ -32090,6 +32341,9 @@ var $;
 		bubble_content(){
 			return [
 				(this.Author()), 
+				(this.Image()), 
+				(this.Voice()), 
+				(this.File()), 
 				(this.Text()), 
 				(this.Time())
 			];
@@ -32099,6 +32353,9 @@ var $;
 			(obj.sub) = () => ((this.bubble_content()));
 			return obj;
 		}
+		media(){
+			return "";
+		}
 		attr(){
 			return {...(super.attr()), "bog_gipergram_message_out": (this.out())};
 		}
@@ -32107,6 +32364,9 @@ var $;
 		}
 	};
 	($mol_mem(($.$bog_gipergram_message.prototype), "Author"));
+	($mol_mem(($.$bog_gipergram_message.prototype), "Image"));
+	($mol_mem(($.$bog_gipergram_message.prototype), "Voice"));
+	($mol_mem(($.$bog_gipergram_message.prototype), "File"));
 	($mol_mem(($.$bog_gipergram_message.prototype), "Text"));
 	($mol_mem(($.$bog_gipergram_message.prototype), "Time"));
 	($mol_mem(($.$bog_gipergram_message.prototype), "Bubble"));
@@ -32123,10 +32383,19 @@ var $;
     var $$;
     (function ($$) {
         class $bog_gipergram_message extends $.$bog_gipergram_message {
+            media_content() {
+                switch (this.media()) {
+                    case 'photo': return [this.Image()];
+                    case 'voice': return [this.Voice()];
+                    case 'file': return [this.File()];
+                    default: return [];
+                }
+            }
             bubble_content() {
                 return [
                     ...this.author() && !this.out() ? [this.Author()] : [],
-                    this.Text(),
+                    ...this.media_content(),
+                    ...this.text() ? [this.Text()] : [],
                     this.Time(),
                 ];
             }
@@ -32160,6 +32429,7 @@ var $;
             },
             Bubble: {
                 flex: { direction: 'column' },
+                gap: $mol_gap.space,
                 maxWidth: '36rem',
                 padding: $mol_gap.text,
                 border: { radius: $mol_gap.round },
@@ -32168,6 +32438,17 @@ var $;
             Author: {
                 color: $mol_theme.special,
                 font: { weight: 'bold' },
+            },
+            Image: {
+                maxWidth: '100%',
+                maxHeight: '24rem',
+                height: 'auto',
+                objectFit: 'contain',
+                border: { radius: $mol_gap.round },
+            },
+            Voice: {
+                maxWidth: '100%',
+                height: '2.5rem',
             },
             Text: {
                 whiteSpace: 'pre-wrap',
@@ -32207,6 +32488,30 @@ var $;
 
 
 ;
+	($.$mol_icon_paperclip) = class $mol_icon_paperclip extends ($.$mol_icon) {
+		path(){
+			return "M16.5,6V17.5A4,4 0 0,1 12.5,21.5A4,4 0 0,1 8.5,17.5V5A2.5,2.5 0 0,1 11,2.5A2.5,2.5 0 0,1 13.5,5V15.5A1,1 0 0,1 12.5,16.5A1,1 0 0,1 11.5,15.5V6H10V15.5A2.5,2.5 0 0,0 12.5,18A2.5,2.5 0 0,0 15,15.5V5A4,4 0 0,0 11,1A4,4 0 0,0 7,5V17.5A5.5,5.5 0 0,0 12.5,23A5.5,5.5 0 0,0 18,17.5V6H16.5Z";
+		}
+	};
+
+
+;
+"use strict";
+
+
+;
+	($.$mol_icon_microphone) = class $mol_icon_microphone extends ($.$mol_icon) {
+		path(){
+			return "M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z";
+		}
+	};
+
+
+;
+"use strict";
+
+
+;
 	($.$mol_icon_send) = class $mol_icon_send extends ($.$mol_icon) {
 		path(){
 			return "M2,21L23,12L2,3V10L17,12L2,14V21Z";
@@ -32217,6 +32522,70 @@ var $;
 ;
 "use strict";
 
+
+;
+"use strict";
+var $;
+(function ($) {
+    class $bog_gipergram_voice extends $mol_object {
+        lib_uri() {
+            return 'https://cdn.jsdelivr.net/npm/opus-recorder@8.0.5/dist/recorder.min.js';
+        }
+        worker_uri() {
+            return 'https://cdn.jsdelivr.net/npm/opus-recorder@8.0.5/dist/encoderWorker.min.js';
+        }
+        encoder_path() {
+            const code = this.$.$mol_fetch.text(this.worker_uri());
+            return URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+        }
+        ready() {
+            const win = this.$.$mol_import.script(this.lib_uri());
+            return { Recorder: win.Recorder, path: this.encoder_path() };
+        }
+        session(next) {
+            return next ?? null;
+        }
+        recording() {
+            return this.session() !== null;
+        }
+        start() {
+            const { Recorder, path } = this.ready();
+            const recorder = new Recorder({
+                encoderPath: path,
+                encoderApplication: 2048,
+                encoderSampleRate: 48000,
+                numberOfChannels: 1,
+            });
+            const done = new Promise(done => {
+                recorder.ondataavailable = (buffer) => done(new Blob([buffer], { type: 'audio/ogg' }));
+            });
+            recorder.start();
+            this.session({ recorder, started: Date.now(), done });
+        }
+        async stop() {
+            const session = this.session();
+            const duration = (Date.now() - session.started) / 1000;
+            session.recorder.stop();
+            this.session(null);
+            const blob = await session.done;
+            return { file: new File([blob], 'voice.ogg', { type: 'audio/ogg' }), duration };
+        }
+        cancel() {
+            this.session()?.recorder.stop();
+            this.session(null);
+        }
+    }
+    __decorate([
+        $mol_mem
+    ], $bog_gipergram_voice.prototype, "encoder_path", null);
+    __decorate([
+        $mol_mem
+    ], $bog_gipergram_voice.prototype, "ready", null);
+    __decorate([
+        $mol_mem
+    ], $bog_gipergram_voice.prototype, "session", null);
+    $.$bog_gipergram_voice = $bog_gipergram_voice;
+})($ || ($ = {}));
 
 ;
 	($.$bog_gipergram_chat) = class $bog_gipergram_chat extends ($.$mol_page) {
@@ -32288,12 +32657,32 @@ var $;
 		message_out(id){
 			return false;
 		}
+		message_media(id){
+			return "";
+		}
+		message_image_uri(id){
+			return "";
+		}
+		message_width(id){
+			return 0;
+		}
+		message_height(id){
+			return 0;
+		}
+		message_voice_uri(id){
+			return "";
+		}
 		Message(id){
 			const obj = new this.$.$bog_gipergram_message();
 			(obj.text) = () => ((this.message_text(id)));
 			(obj.author) = () => ((this.message_author(id)));
 			(obj.time) = () => ((this.message_time(id)));
 			(obj.out) = () => ((this.message_out(id)));
+			(obj.media) = () => ((this.message_media(id)));
+			(obj.image_uri) = () => ((this.message_image_uri(id)));
+			(obj.image_width) = () => ((this.message_width(id)));
+			(obj.image_height) = () => ((this.message_height(id)));
+			(obj.voice_uri) = () => ((this.message_voice_uri(id)));
 			return obj;
 		}
 		message_rows(){
@@ -32354,6 +32743,71 @@ var $;
 			(obj.sub) = () => ((this.anchor_bar()));
 			return obj;
 		}
+		photo_pick(next){
+			if(next !== undefined) return next;
+			return [];
+		}
+		Attach_icon(){
+			const obj = new this.$.$mol_icon_paperclip();
+			return obj;
+		}
+		Attach(){
+			const obj = new this.$.$mol_button_open();
+			(obj.hint) = () => ((this.$.$mol_locale.text("$bog_gipergram_chat_Attach_hint")));
+			(obj.accept) = () => ("image/*");
+			(obj.multiple) = () => (false);
+			(obj.files) = (next) => ((this.photo_pick(next)));
+			(obj.Icon) = () => ((this.Attach_icon()));
+			return obj;
+		}
+		recording_title(){
+			return (this.$.$mol_locale.text("$bog_gipergram_chat_recording_title"));
+		}
+		Recording(){
+			const obj = new this.$.$mol_view();
+			(obj.sub) = () => ([(this.recording_title())]);
+			return obj;
+		}
+		voice_cancel(next){
+			if(next !== undefined) return next;
+			return null;
+		}
+		Voice_cancel_icon(){
+			const obj = new this.$.$mol_icon_close();
+			return obj;
+		}
+		Voice_cancel(){
+			const obj = new this.$.$mol_button_minor();
+			(obj.hint) = () => ((this.$.$mol_locale.text("$bog_gipergram_chat_Voice_cancel_hint")));
+			(obj.click) = (next) => ((this.voice_cancel(next)));
+			(obj.sub) = () => ([(this.Voice_cancel_icon())]);
+			return obj;
+		}
+		voice_hint(){
+			return (this.$.$mol_locale.text("$bog_gipergram_chat_voice_hint"));
+		}
+		voice_toggle(next){
+			if(next !== undefined) return next;
+			return null;
+		}
+		Voice_start_icon(){
+			const obj = new this.$.$mol_icon_microphone();
+			return obj;
+		}
+		Voice_stop_icon(){
+			const obj = new this.$.$mol_icon_send();
+			return obj;
+		}
+		voice_content(){
+			return [(this.Voice_start_icon()), (this.Voice_stop_icon())];
+		}
+		Voice(){
+			const obj = new this.$.$mol_button_minor();
+			(obj.hint) = () => ((this.voice_hint()));
+			(obj.click) = (next) => ((this.voice_toggle(next)));
+			(obj.sub) = () => ((this.voice_content()));
+			return obj;
+		}
 		draft(next){
 			if(next !== undefined) return next;
 			return "";
@@ -32380,9 +32834,19 @@ var $;
 			(obj.sub) = () => ([(this.Send_icon())]);
 			return obj;
 		}
+		compose(){
+			return [
+				(this.Attach()), 
+				(this.Recording()), 
+				(this.Voice_cancel()), 
+				(this.Voice()), 
+				(this.Draft()), 
+				(this.Send())
+			];
+		}
 		Compose(){
 			const obj = new this.$.$mol_view();
-			(obj.sub) = () => ([(this.Draft()), (this.Send())]);
+			(obj.sub) = () => ((this.compose()));
 			return obj;
 		}
 		peer(){
@@ -32395,6 +32859,13 @@ var $;
 		store(){
 			const obj = new this.$.$bog_gipergram_store();
 			return obj;
+		}
+		recorder(){
+			const obj = new this.$.$bog_gipergram_voice();
+			return obj;
+		}
+		voice_hint_stop(){
+			return (this.$.$mol_locale.text("$bog_gipergram_chat_voice_hint_stop"));
 		}
 		title(){
 			return (this.chat_title());
@@ -32439,6 +32910,17 @@ var $;
 	($mol_mem(($.$bog_gipergram_chat.prototype), "Restore_icon"));
 	($mol_mem(($.$bog_gipergram_chat.prototype), "Restore"));
 	($mol_mem(($.$bog_gipergram_chat.prototype), "Anchor_bar"));
+	($mol_mem(($.$bog_gipergram_chat.prototype), "photo_pick"));
+	($mol_mem(($.$bog_gipergram_chat.prototype), "Attach_icon"));
+	($mol_mem(($.$bog_gipergram_chat.prototype), "Attach"));
+	($mol_mem(($.$bog_gipergram_chat.prototype), "Recording"));
+	($mol_mem(($.$bog_gipergram_chat.prototype), "voice_cancel"));
+	($mol_mem(($.$bog_gipergram_chat.prototype), "Voice_cancel_icon"));
+	($mol_mem(($.$bog_gipergram_chat.prototype), "Voice_cancel"));
+	($mol_mem(($.$bog_gipergram_chat.prototype), "voice_toggle"));
+	($mol_mem(($.$bog_gipergram_chat.prototype), "Voice_start_icon"));
+	($mol_mem(($.$bog_gipergram_chat.prototype), "Voice_stop_icon"));
+	($mol_mem(($.$bog_gipergram_chat.prototype), "Voice"));
 	($mol_mem(($.$bog_gipergram_chat.prototype), "draft"));
 	($mol_mem(($.$bog_gipergram_chat.prototype), "send"));
 	($mol_mem(($.$bog_gipergram_chat.prototype), "Draft"));
@@ -32447,6 +32929,7 @@ var $;
 	($mol_mem(($.$bog_gipergram_chat.prototype), "Compose"));
 	($mol_mem(($.$bog_gipergram_chat.prototype), "tg"));
 	($mol_mem(($.$bog_gipergram_chat.prototype), "store"));
+	($mol_mem(($.$bog_gipergram_chat.prototype), "recorder"));
 
 
 ;
@@ -32496,6 +32979,76 @@ var $;
             }
             message_out(id) {
                 return this.message(id).out;
+            }
+            message_media(id) {
+                return this.message(id).media;
+            }
+            message_width(id) {
+                return this.message(id).width;
+            }
+            message_height(id) {
+                return this.message(id).height;
+            }
+            message_image_uri(id) {
+                return this.tg().media_uri([this.peer(), id]);
+            }
+            message_voice_uri(id) {
+                return this.tg().media_uri([this.peer(), id]);
+            }
+            compose() {
+                const recording = this.recorder().recording();
+                return [
+                    ...recording ? [this.Recording(), this.Voice_cancel()] : [this.Attach(), this.Draft()],
+                    this.draft().trim() ? this.Send() : this.Voice(),
+                ];
+            }
+            voice_content() {
+                return [this.recorder().recording() ? this.Voice_stop_icon() : this.Voice_start_icon()];
+            }
+            voice_hint() {
+                return this.recorder().recording() ? this.voice_hint_stop() : super.voice_hint();
+            }
+            photo_pick(files) {
+                const [file] = files;
+                if (!file)
+                    return [];
+                const sent = this.tg().photo_send(this.peer(), file);
+                this.sent(sent.id);
+                return [];
+            }
+            voice_toggle() {
+                const recorder = this.recorder();
+                if (!recorder.recording())
+                    return recorder.start();
+                $mol_wire_async(this).voice_finish();
+            }
+            async voice_finish() {
+                const { file, duration } = await this.recorder().stop();
+                if (duration < 0.7)
+                    return;
+                await $mol_wire_async(this).voice_send(file, duration);
+            }
+            voice_send(file, duration) {
+                const sent = this.tg().voice_send(this.peer(), file, duration);
+                this.sent(sent.id);
+            }
+            voice_cancel() {
+                this.recorder().cancel();
+            }
+            voice_preload() {
+                try {
+                    this.recorder().ready();
+                    return true;
+                }
+                catch (error) {
+                    if ($mol_promise_like(error))
+                        $mol_fail_hidden(error);
+                    return false;
+                }
+            }
+            auto() {
+                this.opened();
+                this.voice_preload();
             }
             message_rows() {
                 const first = this.unread_first();
@@ -32549,8 +33102,11 @@ var $;
                     return;
                 const sent = this.tg().send(this.peer(), text);
                 this.draft('');
-                this.store().anchor_move(this.peer(), this.anchor(), sent.id);
-                this.reveal(sent.id, 'end');
+                this.sent(sent.id);
+            }
+            sent(id) {
+                this.store().anchor_move(this.peer(), this.anchor(), id);
+                this.reveal(id, 'end');
             }
             reveal(id, align) {
                 new this.$.$mol_after_frame(() => this.ensure_visible(this.Message(id), align));
@@ -32569,9 +33125,6 @@ var $;
                 });
                 return true;
             }
-            auto() {
-                this.opened();
-            }
         }
         __decorate([
             $mol_mem
@@ -32579,6 +33132,18 @@ var $;
         __decorate([
             $mol_mem_key
         ], $bog_gipergram_chat.prototype, "message", null);
+        __decorate([
+            $mol_action
+        ], $bog_gipergram_chat.prototype, "photo_pick", null);
+        __decorate([
+            $mol_action
+        ], $bog_gipergram_chat.prototype, "voice_toggle", null);
+        __decorate([
+            $mol_action
+        ], $bog_gipergram_chat.prototype, "voice_cancel", null);
+        __decorate([
+            $mol_mem
+        ], $bog_gipergram_chat.prototype, "voice_preload", null);
         __decorate([
             $mol_mem
         ], $bog_gipergram_chat.prototype, "message_rows", null);
@@ -33014,7 +33579,8 @@ var $;
                 return this.row_title(this.mine_peer(key));
             }
             mine_text(key) {
-                return this.mine_item(key)?.text ?? '';
+                const item = this.mine_item(key);
+                return item ? this.tg().preview_of(item) : '';
             }
             mine_time(key) {
                 return this.time_text(this.mine_item(key)?.date ?? 0);

@@ -344,9 +344,15 @@
     "$mol_check",
     "$mol_dom_event",
     "$bog_gipergram_message",
+    "$mol_image",
     "$mol_icon_check_all",
     "$mol_icon_check",
     "$mol_icon_undo",
+    "$mol_icon_paperclip",
+    "$mol_button_open",
+    "$mol_icon_upload",
+    "$mol_icon_microphone",
+    "$mol_icon_send",
     "$mol_textarea",
     "$mol_stack",
     "$mol_text_code",
@@ -358,7 +364,10 @@
     "$mol_type_intersect",
     "$mol_unicode",
     "$mol_syntax2_md",
-    "$mol_icon_send"
+    "$bog_gipergram_voice",
+    "$mol_fetch",
+    "$mol_error_enriched",
+    "$mol_error_fence"
   ],
   "dependencies": {
     "autoinstall": "*",

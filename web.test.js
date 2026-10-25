@@ -7073,8 +7073,19 @@ var $;
 "use strict";
 var $;
 (function ($_1) {
+    function message_make(id, text, out, media = '') {
+        return {
+            id, text, out, media,
+            date: 1,
+            author: out ? '' : 'Alice',
+            width: media === 'photo' ? 800 : 0,
+            height: media === 'photo' ? 600 : 0,
+            duration: media === 'voice' ? 3 : 0,
+        };
+    }
     class $bog_gipergram_tg_fake extends $bog_gipergram_tg {
         sent = [];
+        files = [];
         read_marks = [];
         configured() {
             return true;
@@ -7090,17 +7101,28 @@ var $;
         }
         messages(peer, next) {
             return next ?? (peer === '1' ? [
-                { id: 10, text: 'one', date: 1, out: true, author: '' },
-                { id: 11, text: 'two', date: 1, out: false, author: 'Alice' },
-                { id: 12, text: 'three', date: 1, out: false, author: 'Alice' },
-                { id: 13, text: 'four', date: 1, out: false, author: 'Alice' },
+                message_make(10, 'one', true),
+                message_make(11, 'two', false),
+                message_make(12, 'three', false),
+                message_make(13, 'four', false),
             ] : [
-                { id: 20, text: 'hi', date: 1, out: true, author: '' },
+                message_make(20, 'hi', true),
+                message_make(21, 'look', false, 'photo'),
+                message_make(22, '', false, 'voice'),
             ]);
+        }
+        media_uri([peer, id]) {
+            return `blob:${peer}:${id}`;
         }
         send(peer, text) {
             this.sent.push(text);
-            const message = { id: 100 + this.sent.length, text, date: 2, out: true, author: '' };
+            const message = message_make(100 + this.sent.length, text, true);
+            this.message_add(peer, message);
+            return message;
+        }
+        photo_send(peer, file) {
+            this.files.push(file.name);
+            const message = message_make(200 + this.files.length, '', true, 'photo');
             this.message_add(peer, message);
             return message;
         }
@@ -7199,6 +7221,44 @@ var $;
             $mol_assert_equal(app.mine_rows().length, 1);
             $mol_assert_equal(app.mine_text('1:101'), 'hello');
             $mol_assert_equal(app.row_preview('1'), '↗ hello');
+        },
+        'photo and voice render in their bubbles'($) {
+            const { app } = app_make($);
+            const chat = app.Chat('2');
+            const photo = chat.Message(21);
+            $mol_assert_equal(photo.bubble_content()[1], photo.Image());
+            $mol_assert_equal(photo.Image().uri(), 'blob:2:21');
+            $mol_assert_equal(photo.Image().natural_width(), 800);
+            $mol_assert_equal(photo.bubble_content()[2], photo.Text());
+            const voice = chat.Message(22);
+            $mol_assert_equal(voice.bubble_content()[1], voice.Voice());
+            $mol_assert_equal(voice.voice_uri(), 'blob:2:22');
+            $mol_assert_equal(voice.bubble_content().includes(voice.Text()), false);
+        },
+        'picked photo is sent and lands in my messages'($) {
+            const { app, tg } = app_make($);
+            const chat = app.Chat('1');
+            new $mol_wire_atom('bog_gipergram_test_keep', () => chat.message_rows()).fresh();
+            chat.photo_pick([new File(['x'], 'cat.jpg', { type: 'image/jpeg' })]);
+            $mol_assert_equal(tg.files.length, 1);
+            $mol_assert_equal(tg.files[0], 'cat.jpg');
+            $mol_assert_equal(chat.message_rows().length, 5);
+            $mol_assert_equal(chat.message_rows()[4], chat.Message(201));
+            $mol_assert_equal(app.mine_text('1:201'), '🖼');
+            $mol_assert_equal(app.row_preview('1'), '↗ 🖼');
+        },
+        'composer swaps voice and send buttons'($) {
+            const { app } = app_make($);
+            const chat = app.Chat('1');
+            $mol_assert_equal(chat.compose().at(-1), chat.Voice());
+            chat.draft('x');
+            $mol_assert_equal(chat.compose().at(-1), chat.Send());
+            chat.draft('');
+            chat.recorder().session({ recorder: { stop() { } }, started: 0, done: Promise.resolve(new Blob) });
+            $mol_assert_equal(chat.compose()[0], chat.Recording());
+            $mol_assert_equal(chat.voice_content()[0], chat.Voice_stop_icon());
+            chat.voice_cancel();
+            $mol_assert_equal(chat.compose()[0], chat.Attach());
         },
     });
 })($ || ($ = {}));

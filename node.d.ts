@@ -2882,6 +2882,10 @@ declare namespace $ {
         date: number;
         out: boolean;
         author: string;
+        media: '' | 'photo' | 'voice' | 'file';
+        width: number;
+        height: number;
+        duration: number;
     };
     class $bog_gipergram_tg extends $mol_object {
         api_id(): number;
@@ -2921,11 +2925,20 @@ declare namespace $ {
         dialogs(next?: $bog_gipergram_tg_dialog[]): $bog_gipergram_tg_dialog[];
         dialog(id: string): $bog_gipergram_tg_dialog | null;
         entity(id: string): any;
+        media_of(message: any): $bog_gipergram_tg_message['media'];
+        media_icon(media: $bog_gipergram_tg_message['media']): string;
         text_of(message: any): string;
-        message_of(message: any): $bog_gipergram_tg_message;
+        preview_of(message: $bog_gipergram_tg_message): string;
+        raws: Map<string, any>;
+        message_of(peer: string, message: any): $bog_gipergram_tg_message;
         messages(peer: string, next?: $bog_gipergram_tg_message[]): $bog_gipergram_tg_message[];
+        raw(peer: string, id: number): any;
         message_one([peer, id]: [string, number]): $bog_gipergram_tg_message | null;
+        mime_of(raw: any): any;
+        media_uri([peer, id]: [string, number]): string;
         send(peer: string, text: string): $bog_gipergram_tg_message;
+        photo_send(peer: string, file: File): $bog_gipergram_tg_message;
+        voice_send(peer: string, file: File, duration: number): $bog_gipergram_tg_message;
         read(peer: string, max_id: number): void;
         message_out(next?: [string, $bog_gipergram_tg_message] | null): [string, $bog_gipergram_tg_message] | null;
         message_add(peer: string, message: $bog_gipergram_tg_message): void;
@@ -39543,22 +39556,88 @@ declare namespace $ {
 //# sourceMappingURL=icon.view.tree.d.ts.map
 declare namespace $ {
 
+	export class $mol_image extends $mol_view {
+		uri( ): string
+		title( ): string
+		loading( ): string
+		decoding( ): string
+		cors( ): any
+		natural_width( ): number
+		natural_height( ): number
+		load( next?: any ): any
+		dom_name( ): string
+		attr( ): Record<string, any> & ReturnType< $mol_view['attr'] >
+		event( ): Record<string, any>
+		minimal_width( ): number
+		minimal_height( ): number
+	}
+	
+}
+
+//# sourceMappingURL=image.view.tree.d.ts.map
+declare namespace $.$$ {
+    class $mol_image extends $.$mol_image {
+        natural_width(next?: null): number;
+        natural_height(next?: null): number;
+        load(): void;
+    }
+}
+
+declare namespace $ {
+}
+
+declare namespace $ {
+
 	type $mol_view__sub_bog_gipergram_message_1 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_view['sub'] >
 	>
-	type $mol_view__sub_bog_gipergram_message_2 = $mol_type_enforce<
+	type $mol_image__uri_bog_gipergram_message_2 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_message['image_uri'] >
+		,
+		ReturnType< $mol_image['uri'] >
+	>
+	type $mol_image__natural_width_bog_gipergram_message_3 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_message['image_width'] >
+		,
+		ReturnType< $mol_image['natural_width'] >
+	>
+	type $mol_image__natural_height_bog_gipergram_message_4 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_message['image_height'] >
+		,
+		ReturnType< $mol_image['natural_height'] >
+	>
+	type $mol_view__dom_name_bog_gipergram_message_5 = $mol_type_enforce<
+		string
+		,
+		ReturnType< $mol_view['dom_name'] >
+	>
+	type $mol_view__attr_bog_gipergram_message_6 = $mol_type_enforce<
+		({ 
+			'controls': boolean,
+			'preload': string,
+			'src': ReturnType< $bog_gipergram_message['voice_uri'] >,
+		}) 
+		,
+		ReturnType< $mol_view['attr'] >
+	>
+	type $mol_view__sub_bog_gipergram_message_7 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_view['sub'] >
 	>
-	type $mol_view__sub_bog_gipergram_message_3 = $mol_type_enforce<
+	type $mol_view__sub_bog_gipergram_message_8 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_view['sub'] >
 	>
-	type $mol_view__sub_bog_gipergram_message_4 = $mol_type_enforce<
+	type $mol_view__sub_bog_gipergram_message_9 = $mol_type_enforce<
+		readonly(any)[]
+		,
+		ReturnType< $mol_view['sub'] >
+	>
+	type $mol_view__sub_bog_gipergram_message_10 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_message['bubble_content'] >
 		,
 		ReturnType< $mol_view['sub'] >
@@ -39567,12 +39646,21 @@ declare namespace $ {
 		out( ): boolean
 		author( ): string
 		Author( ): $mol_view
+		image_uri( ): string
+		image_width( ): number
+		image_height( ): number
+		Image( ): $mol_image
+		voice_uri( ): string
+		Voice( ): $mol_view
+		file_title( ): string
+		File( ): $mol_view
 		text( ): string
 		Text( ): $mol_view
 		time( ): string
 		Time( ): $mol_view
 		bubble_content( ): readonly(any)[]
 		Bubble( ): $mol_view
+		media( ): string
 		attr( ): ({ 
 			'bog_gipergram_message_out': ReturnType< $bog_gipergram_message['out'] >,
 		})  & ReturnType< $mol_view['attr'] >
@@ -39584,7 +39672,8 @@ declare namespace $ {
 //# sourceMappingURL=message.view.tree.d.ts.map
 declare namespace $.$$ {
     class $bog_gipergram_message extends $.$bog_gipergram_message {
-        bubble_content(): $mol_view[];
+        media_content(): $mol_view[] | $.$mol_image[];
+        bubble_content(): ($mol_view | $.$mol_image)[];
     }
 }
 
@@ -39618,6 +39707,105 @@ declare namespace $ {
 }
 
 //# sourceMappingURL=undo.view.tree.d.ts.map
+declare namespace $ {
+
+	export class $mol_icon_paperclip extends $mol_icon {
+		path( ): string
+	}
+	
+}
+
+//# sourceMappingURL=paperclip.view.tree.d.ts.map
+declare namespace $ {
+
+	export class $mol_icon_upload extends $mol_icon {
+		path( ): string
+	}
+	
+}
+
+//# sourceMappingURL=upload.view.tree.d.ts.map
+declare namespace $ {
+
+	type $mol_button_open_native__files_mol_button_open_1 = $mol_type_enforce<
+		ReturnType< $mol_button_open['files_handled'] >
+		,
+		ReturnType< $mol_button_open_native['files'] >
+	>
+	type $mol_button_open_native__accept_mol_button_open_2 = $mol_type_enforce<
+		ReturnType< $mol_button_open['accept'] >
+		,
+		ReturnType< $mol_button_open_native['accept'] >
+	>
+	type $mol_button_open_native__multiple_mol_button_open_3 = $mol_type_enforce<
+		ReturnType< $mol_button_open['multiple'] >
+		,
+		ReturnType< $mol_button_open_native['multiple'] >
+	>
+	export class $mol_button_open extends $mol_button_minor {
+		Icon( ): $mol_icon_upload
+		files( next?: readonly(File)[] ): readonly(File)[]
+		files_handled( next?: ReturnType< $mol_button_open['files'] > ): ReturnType< $mol_button_open['files'] >
+		accept( ): string
+		multiple( ): boolean
+		Native( ): $mol_button_open_native
+		sub( ): readonly(any)[]
+	}
+	
+	export class $mol_button_open_native extends $mol_view {
+		accept( ): string
+		multiple( ): boolean
+		picked( next?: any ): any
+		dom_name( ): string
+		files( next?: readonly(File)[] ): readonly(File)[]
+		attr( ): ({ 
+			'type': string,
+			'accept': ReturnType< $mol_button_open_native['accept'] >,
+			'multiple': ReturnType< $mol_button_open_native['multiple'] >,
+		}) 
+		event( ): ({ 
+			change( next?: ReturnType< $mol_button_open_native['picked'] > ): ReturnType< $mol_button_open_native['picked'] >,
+		}) 
+	}
+	
+}
+
+//# sourceMappingURL=open.view.tree.d.ts.map
+declare namespace $.$$ {
+    class $mol_button_open extends $.$mol_button_open {
+        files_handled(next?: readonly File[]): readonly File[];
+    }
+    /**
+     * File open button
+     * @see https://mol.hyoo.ru/#!section=demos/demo=mol_button_demo
+     */
+    class $mol_button_open_native extends $.$mol_button_open_native {
+        dom_node(): HTMLInputElement;
+        picked(): void;
+    }
+}
+
+declare namespace $ {
+}
+
+declare namespace $ {
+
+	export class $mol_icon_microphone extends $mol_icon {
+		path( ): string
+	}
+	
+}
+
+//# sourceMappingURL=microphone.view.tree.d.ts.map
+declare namespace $ {
+
+	export class $mol_icon_send extends $mol_icon {
+		path( ): string
+	}
+	
+}
+
+//# sourceMappingURL=send.view.tree.d.ts.map
 declare namespace $ {
 }
 
@@ -40237,14 +40425,80 @@ declare namespace $ {
 }
 
 declare namespace $ {
-
-	export class $mol_icon_send extends $mol_icon {
-		path( ): string
-	}
-	
+    function $mol_error_fence<Data>(task: () => Data, fallback: (parent: Error) => Error | Data | PromiseLike<Data>, loading?: (parent: PromiseLike<Data>) => Error | Data | PromiseLike<Data>): Data;
 }
 
-//# sourceMappingURL=send.view.tree.d.ts.map
+declare namespace $ {
+    function $mol_error_enriched<V>(cause: {}, cb: () => V): V;
+}
+
+declare namespace $ {
+    class $mol_fetch_response extends $mol_object {
+        readonly native: Response;
+        readonly request: $mol_fetch_request;
+        status(): "unknown" | "success" | "inform" | "redirect" | "wrong" | "failed";
+        code(): number;
+        ok(): boolean;
+        message(): string;
+        headers(): Headers;
+        mime(): string | null;
+        stream(): ReadableStream<Uint8Array<ArrayBuffer>> | null;
+        text(): string;
+        json(): unknown;
+        blob(): Blob;
+        buffer(): ArrayBuffer;
+        xml(): Document;
+        xhtml(): Document;
+        html(): Document;
+    }
+    class $mol_fetch_request extends $mol_object {
+        readonly native: Request;
+        response_async(): Promise<Response> & {
+            destructor: () => void;
+        };
+        response(): $mol_fetch_response;
+        success(): $mol_fetch_response;
+    }
+    class $mol_fetch extends $mol_object {
+        static request(input: RequestInfo, init?: RequestInit): $mol_fetch_request;
+        static response(input: RequestInfo, init?: RequestInit): $mol_fetch_response;
+        static success(input: RequestInfo, init?: RequestInit): $mol_fetch_response;
+        static stream(input: RequestInfo, init?: RequestInit): ReadableStream<Uint8Array<ArrayBuffer>> | null;
+        static text(input: RequestInfo, init?: RequestInit): string;
+        static json(input: RequestInfo, init?: RequestInit): unknown;
+        static blob(input: RequestInfo, init?: RequestInit): Blob;
+        static buffer(input: RequestInfo, init?: RequestInit): ArrayBuffer;
+        static xml(input: RequestInfo, init?: RequestInit): Document;
+        static xhtml(input: RequestInfo, init?: RequestInit): Document;
+        static html(input: RequestInfo, init?: RequestInit): Document;
+    }
+}
+
+declare namespace $ {
+    type $bog_gipergram_voice_session = {
+        recorder: any;
+        started: number;
+        done: Promise<Blob>;
+    };
+    class $bog_gipergram_voice extends $mol_object {
+        lib_uri(): string;
+        worker_uri(): string;
+        encoder_path(): string;
+        ready(): {
+            Recorder: any;
+            path: string;
+        };
+        session(next?: $bog_gipergram_voice_session | null): $bog_gipergram_voice_session | null;
+        recording(): boolean;
+        start(): void;
+        stop(): Promise<{
+            file: File;
+            duration: number;
+        }>;
+        cancel(): void;
+    }
+}
+
 declare namespace $ {
 
 	type $mol_button_minor__hint_bog_gipergram_chat_1 = $mol_type_enforce<
@@ -40317,83 +40571,168 @@ declare namespace $ {
 		,
 		ReturnType< $bog_gipergram_message['out'] >
 	>
-	type $mol_list__rows_bog_gipergram_chat_15 = $mol_type_enforce<
+	type $bog_gipergram_message__media_bog_gipergram_chat_15 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_chat['message_media'] >
+		,
+		ReturnType< $bog_gipergram_message['media'] >
+	>
+	type $bog_gipergram_message__image_uri_bog_gipergram_chat_16 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_chat['message_image_uri'] >
+		,
+		ReturnType< $bog_gipergram_message['image_uri'] >
+	>
+	type $bog_gipergram_message__image_width_bog_gipergram_chat_17 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_chat['message_width'] >
+		,
+		ReturnType< $bog_gipergram_message['image_width'] >
+	>
+	type $bog_gipergram_message__image_height_bog_gipergram_chat_18 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_chat['message_height'] >
+		,
+		ReturnType< $bog_gipergram_message['image_height'] >
+	>
+	type $bog_gipergram_message__voice_uri_bog_gipergram_chat_19 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_chat['message_voice_uri'] >
+		,
+		ReturnType< $bog_gipergram_message['voice_uri'] >
+	>
+	type $mol_list__rows_bog_gipergram_chat_20 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_chat['message_rows'] >
 		,
 		ReturnType< $mol_list['rows'] >
 	>
-	type $mol_view__sub_bog_gipergram_chat_16 = $mol_type_enforce<
+	type $mol_view__sub_bog_gipergram_chat_21 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_view['sub'] >
 	>
-	type $mol_button_minor__hint_bog_gipergram_chat_17 = $mol_type_enforce<
+	type $mol_button_minor__hint_bog_gipergram_chat_22 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_button_minor['hint'] >
 	>
-	type $mol_button_minor__click_bog_gipergram_chat_18 = $mol_type_enforce<
+	type $mol_button_minor__click_bog_gipergram_chat_23 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_chat['read'] >
 		,
 		ReturnType< $mol_button_minor['click'] >
 	>
-	type $mol_button_minor__sub_bog_gipergram_chat_19 = $mol_type_enforce<
+	type $mol_button_minor__sub_bog_gipergram_chat_24 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_button_minor['sub'] >
 	>
-	type $mol_button_minor__hint_bog_gipergram_chat_20 = $mol_type_enforce<
+	type $mol_button_minor__hint_bog_gipergram_chat_25 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_button_minor['hint'] >
 	>
-	type $mol_button_minor__click_bog_gipergram_chat_21 = $mol_type_enforce<
+	type $mol_button_minor__click_bog_gipergram_chat_26 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_chat['restore'] >
 		,
 		ReturnType< $mol_button_minor['click'] >
 	>
-	type $mol_button_minor__sub_bog_gipergram_chat_22 = $mol_type_enforce<
+	type $mol_button_minor__sub_bog_gipergram_chat_27 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_button_minor['sub'] >
 	>
-	type $mol_view__sub_bog_gipergram_chat_23 = $mol_type_enforce<
+	type $mol_view__sub_bog_gipergram_chat_28 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_chat['anchor_bar'] >
 		,
 		ReturnType< $mol_view['sub'] >
 	>
-	type $mol_textarea__hint_bog_gipergram_chat_24 = $mol_type_enforce<
+	type $mol_button_open__hint_bog_gipergram_chat_29 = $mol_type_enforce<
+		string
+		,
+		ReturnType< $mol_button_open['hint'] >
+	>
+	type $mol_button_open__accept_bog_gipergram_chat_30 = $mol_type_enforce<
+		string
+		,
+		ReturnType< $mol_button_open['accept'] >
+	>
+	type $mol_button_open__multiple_bog_gipergram_chat_31 = $mol_type_enforce<
+		boolean
+		,
+		ReturnType< $mol_button_open['multiple'] >
+	>
+	type $mol_button_open__files_bog_gipergram_chat_32 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_chat['photo_pick'] >
+		,
+		ReturnType< $mol_button_open['files'] >
+	>
+	type $mol_button_open__Icon_bog_gipergram_chat_33 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_chat['Attach_icon'] >
+		,
+		ReturnType< $mol_button_open['Icon'] >
+	>
+	type $mol_view__sub_bog_gipergram_chat_34 = $mol_type_enforce<
+		readonly(any)[]
+		,
+		ReturnType< $mol_view['sub'] >
+	>
+	type $mol_button_minor__hint_bog_gipergram_chat_35 = $mol_type_enforce<
+		string
+		,
+		ReturnType< $mol_button_minor['hint'] >
+	>
+	type $mol_button_minor__click_bog_gipergram_chat_36 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_chat['voice_cancel'] >
+		,
+		ReturnType< $mol_button_minor['click'] >
+	>
+	type $mol_button_minor__sub_bog_gipergram_chat_37 = $mol_type_enforce<
+		readonly(any)[]
+		,
+		ReturnType< $mol_button_minor['sub'] >
+	>
+	type $mol_button_minor__hint_bog_gipergram_chat_38 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_chat['voice_hint'] >
+		,
+		ReturnType< $mol_button_minor['hint'] >
+	>
+	type $mol_button_minor__click_bog_gipergram_chat_39 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_chat['voice_toggle'] >
+		,
+		ReturnType< $mol_button_minor['click'] >
+	>
+	type $mol_button_minor__sub_bog_gipergram_chat_40 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_chat['voice_content'] >
+		,
+		ReturnType< $mol_button_minor['sub'] >
+	>
+	type $mol_textarea__hint_bog_gipergram_chat_41 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_textarea['hint'] >
 	>
-	type $mol_textarea__value_bog_gipergram_chat_25 = $mol_type_enforce<
+	type $mol_textarea__value_bog_gipergram_chat_42 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_chat['draft'] >
 		,
 		ReturnType< $mol_textarea['value'] >
 	>
-	type $mol_textarea__submit_bog_gipergram_chat_26 = $mol_type_enforce<
+	type $mol_textarea__submit_bog_gipergram_chat_43 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_chat['send'] >
 		,
 		ReturnType< $mol_textarea['submit'] >
 	>
-	type $mol_button_major__hint_bog_gipergram_chat_27 = $mol_type_enforce<
+	type $mol_button_major__hint_bog_gipergram_chat_44 = $mol_type_enforce<
 		string
 		,
 		ReturnType< $mol_button_major['hint'] >
 	>
-	type $mol_button_major__click_bog_gipergram_chat_28 = $mol_type_enforce<
+	type $mol_button_major__click_bog_gipergram_chat_45 = $mol_type_enforce<
 		ReturnType< $bog_gipergram_chat['send'] >
 		,
 		ReturnType< $mol_button_major['click'] >
 	>
-	type $mol_button_major__sub_bog_gipergram_chat_29 = $mol_type_enforce<
+	type $mol_button_major__sub_bog_gipergram_chat_46 = $mol_type_enforce<
 		readonly(any)[]
 		,
 		ReturnType< $mol_button_major['sub'] >
 	>
-	type $mol_view__sub_bog_gipergram_chat_30 = $mol_type_enforce<
-		readonly(any)[]
+	type $mol_view__sub_bog_gipergram_chat_47 = $mol_type_enforce<
+		ReturnType< $bog_gipergram_chat['compose'] >
 		,
 		ReturnType< $mol_view['sub'] >
 	>
@@ -40414,6 +40753,11 @@ declare namespace $ {
 		message_author( id: any): string
 		message_time( id: any): string
 		message_out( id: any): boolean
+		message_media( id: any): string
+		message_image_uri( id: any): string
+		message_width( id: any): number
+		message_height( id: any): number
+		message_voice_uri( id: any): string
 		Message( id: any): $bog_gipergram_message
 		message_rows( ): readonly(any)[]
 		Messages( ): $mol_list
@@ -40427,15 +40771,32 @@ declare namespace $ {
 		Restore( ): $mol_button_minor
 		anchor_bar( ): readonly(any)[]
 		Anchor_bar( ): $mol_view
+		photo_pick( next?: readonly(File)[] ): readonly(File)[]
+		Attach_icon( ): $mol_icon_paperclip
+		Attach( ): $mol_button_open
+		recording_title( ): string
+		Recording( ): $mol_view
+		voice_cancel( next?: any ): any
+		Voice_cancel_icon( ): $mol_icon_close
+		Voice_cancel( ): $mol_button_minor
+		voice_hint( ): string
+		voice_toggle( next?: any ): any
+		Voice_start_icon( ): $mol_icon_microphone
+		Voice_stop_icon( ): $mol_icon_send
+		voice_content( ): readonly(any)[]
+		Voice( ): $mol_button_minor
 		draft( next?: string ): string
 		send( next?: any ): any
 		Draft( ): $mol_textarea
 		Send_icon( ): $mol_icon_send
 		Send( ): $mol_button_major
+		compose( ): readonly(any)[]
 		Compose( ): $mol_view
 		peer( ): string
 		tg( ): $bog_gipergram_tg
 		store( ): $bog_gipergram_store
+		recorder( ): $bog_gipergram_voice
+		voice_hint_stop( ): string
 		title( ): ReturnType< $bog_gipergram_chat['chat_title'] >
 		tools( ): readonly(any)[]
 		body( ): readonly(any)[]
@@ -40461,6 +40822,21 @@ declare namespace $.$$ {
         message_author(id: number): string;
         message_time(id: number): string;
         message_out(id: number): boolean;
+        message_media(id: number): "" | "photo" | "voice" | "file";
+        message_width(id: number): number;
+        message_height(id: number): number;
+        message_image_uri(id: number): string;
+        message_voice_uri(id: number): string;
+        compose(): ($mol_view | $.$mol_button_open | $.$mol_textarea)[];
+        voice_content(): ($mol_icon_send | $mol_icon_microphone)[];
+        voice_hint(): string;
+        photo_pick(files: readonly File[]): never[];
+        voice_toggle(): void;
+        voice_finish(): Promise<void>;
+        voice_send(file: File, duration: number): void;
+        voice_cancel(): void;
+        voice_preload(): boolean;
+        auto(): void;
         message_rows(): ($mol_view | $.$bog_gipergram_message)[];
         unread_count_text(): string;
         anchor_bar(): $mol_view[];
@@ -40472,10 +40848,10 @@ declare namespace $.$$ {
         close(): void;
         draft(next?: string): string;
         send(): void;
+        sent(id: number): void;
         reveal(id: number, align: ScrollLogicalPosition): void;
         loaded(): boolean;
         opened(): boolean;
-        auto(): void;
     }
 }
 
