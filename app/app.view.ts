@@ -1,5 +1,8 @@
 namespace $.$$ {
 
+	$giper_baza_yard.masters_default.length = 0
+	$giper_baza_yard.masters = (): string[] => [ 'https://cmyser-bg-pony.87.120.36.150.ip.giper.dev/' ]
+
 	export class $bog_gipergram_app extends $.$bog_gipergram_app {
 
 		chat_current() {
