@@ -37,6 +37,7 @@ namespace $ {
 			return this.api_id() > 0 && this.api_hash().length > 0
 		}
 
+		@ $mol_mem
 		lib_uri() {
 			return new URL( 'bog/gipergram/gramjs/telegram.mjs', this.$.$mol_dom_context.document.baseURI ).href
 		}
